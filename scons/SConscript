@@ -1,0 +1,150 @@
+Import('*')
+
+TARGET = '#' + TARGET
+
+SOURCES = map(lambda s: (s[0] == '/') and s or ('#../src/' + s), env['APP_SOURCES'])
+
+platform = env['PLATFORM']
+
+# FIXME: remove these, all things here will be added by the SConscript of the block
+if 'INCLUDES' in locals():
+	INCLUDES = map(lambda s: (s[0] == '/') and s or ('#' + s), INCLUDES)
+else:
+	INCLUDES = []
+
+if 'LIBS' not in locals():
+	LIBS = []
+
+if 'LIBPATH' not in locals():
+	LIBPATH = []
+
+
+if platform == 'darwin':
+	if 'ICON' not in locals():
+		ICON = '../tools/TinderBox.app/Contents/Resources/CinderApp.icns'
+	else:
+		ICON = '#../resources/' + ICON
+
+INCLUDES += ['#../include']
+
+INCLUDES += ['../include',
+		'../boost',
+		'../include/rapidxml',
+		'../include/cinder/app',
+		'../src/AntTweakBar']
+
+if DEBUG:
+	LIBS += ['cinder_d']
+else:
+	LIBS += ['cinder']
+
+if platform == 'darwin':
+	INCLUDES += ['../include/macosx/png',
+			'../include/macosx/cairo']
+	LIBPATH = ['../lib/macosx/'] + LIBPATH
+
+LIBPATH += ['.']
+
+if platform == 'darwin':
+	LIBS += [File(LIBPATH[0] + s) for s in Split('libboost_date_time.a libboost_system.a libboost_thread.a ' + \
+			'libboost_filesystem.a libcairo.a libpixman-1.a libz.a libpng14.a')]
+elif platform == 'posix':
+	for lib in ['x11', 'gl', 'cairo', 'libcurl', 'zlib']:
+		env.ParseConfig('pkg-config --cflags --libs %s' % (lib))
+	# FIXME: no boost pkg-config
+	LIBS += ['boost_date_time-mt', 'boost_system-mt', 'boost_thread-mt',
+			'boost_filesystem-mt']
+	# librt for glibc timer
+	LIBS += ['rt']
+
+CCFLAGS = ' -x c++ -fmessage-length=0 -pipe -Wno-trigraphs -Wreturn-type -Wunused-variable -ffast-math -fvisibility-inlines-hidden '
+# CCFLAGS += ' -Wextra -Wall '
+
+LINKFLAGS = '-dead_strip '
+
+if platform == 'darwin':
+	CCFLAGS += '-arch i386 -fpascal-strings -fasm-blocks -mmacosx-version-min=10.6 '
+	LINKFLAGS += '-arch i386 -all_load'
+elif platform == 'posix':
+	CCFLAGS +='-pthread '
+
+if DEBUG:
+	CCFLAGS += '-ggdb2 -O0 '
+else:
+	CCFLAGS += '-g0 -O3 '
+
+CPPPATH = ['/usr/include']
+CPPPATH += INCLUDES
+
+# FIXME: replace these with block SConscript files
+# process cinder blocks
+if 'BLOCKS' not in locals():
+	BLOCKS = []
+for block in BLOCKS:
+	if block == 'opencv':
+		CPPPATH += ['../blocks/opencv/include',
+				'../blocks/opencv/OpenCV/include']
+		LIBPATH += ['../blocks/opencv/OpenCV/lib']
+		LIBS += ['cv', 'cxcore']
+	elif block == 'kinect':
+		CPPPATH += ['../blocks/Cinder-Kinect/include']
+		if platform == 'darwin':
+			LIBS += [File('../blocks/Cinder-Kinect/lib/macosx/libfreenect.a'),
+					File('../blocks/Cinder-Kinect/lib/macosx/libusb-1.0.a')]
+			env.Append(FRAMEWORKS = 'IOKit')
+
+		SOURCES += ['../blocks/Cinder-Kinect/src/Kinect.cpp']
+
+env.Replace(CCFLAGS = Split(CCFLAGS))
+env.Append(CPPPATH = CPPPATH)
+env.Append(LIBPATH = LIBPATH)
+env.Append(LIBS = LIBS)
+env.Replace(LINKFLAGS = Split(LINKFLAGS))
+
+if platform == 'darwin':
+	env.Append(FRAMEWORKS = Split('Accelerate AudioToolbox AudioUnit CoreAudio ' + \
+			'ApplicationServices QuickTime QTKit CoreVideo Carbon OpenGl Cocoa ' + \
+			'AppKit CoreData Foundation CoreServices '))
+	env.Append(FRAMEWORKPATH = '/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/')
+
+# build the application
+env.Program(source = SOURCES, target = TARGET)
+
+# build the osx app
+if platform == 'darwin':
+	import sys, os
+	from osxbundle import *
+	TOOL_BUNDLE(env)
+
+	if 'RESOURCES' not in locals():
+		RESOURCES = []
+	else:
+		RESOURCES = ['#../resources/' + s for s in RESOURCES]
+
+	if 'ASSETS' not in locals():
+		ASSETS = []
+	else:
+		ASSETS = [['#../assets/' + s, 'assets/' + s] for s in ASSETS]
+
+	if 'PLIST' not in locals():
+		PLIST = '#../xcode/Info.plist',
+	else:
+		PLIST = '#' + PLIST
+		
+	bundle = env.Alias('app', env.MakeBundle(TARGET + '.app',
+		TARGET,
+		'key',
+		PLIST,
+		resources = RESOURCES + ASSETS,
+		typecode='APPL',
+		icon_file = ICON,
+		subst_dict = {'\${EXECUTABLE_NAME}': TARGET[1:],
+						'\${PRODUCT_NAME}': TARGET[1:],
+						'\${ICON_FILE}': basename(ICON)}))
+
+	env.Clean(TARGET, TARGET + '.app')
+
+# run
+if platform == 'darwin':
+	env.AlwaysBuild(env.Alias('run', [TARGET + '.app'], 'open %s' % env.Dir(TARGET + '.app').abspath))
+

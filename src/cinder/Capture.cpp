@@ -42,7 +42,7 @@ const vector<Capture::DeviceRef>& Capture::getDevices( bool forceRefresh )
 {	
 #if defined( CINDER_COCOA )
 	return [CapturePlatformImpl getDevices:forceRefresh];
-#else
+#elif defined( CINDER_MSW )
 	return CapturePlatformImpl::getDevices( forceRefresh );
 #endif
 }
@@ -75,16 +75,16 @@ Capture::Obj::Obj( int32_t width, int32_t height, const DeviceRef device )
 {
 #if defined( CINDER_COCOA )
 	mImpl = [[::CapturePlatformImpl alloc] initWithDevice:device width:width height:height];
-#else
+#elif defined( CINDER_MSW )
 	mImpl = new CapturePlatformImpl( width, height, device );
-#endif	
+#endif
 }
 
 Capture::Obj::~Obj()
 {
 #if defined( CINDER_COCOA )
 	[((::CapturePlatformImpl*)mImpl) release];
-#else
+#elif defined( CINDER_MSW )
 	delete mImpl;
 #endif
 }
@@ -98,7 +98,7 @@ void Capture::start()
 {
 #if defined( CINDER_COCOA )
 	[((::CapturePlatformImpl*)mObj->mImpl) startCapture];
-#else
+#elif defined( CINDER_MSW )
 	mObj->mImpl->start();
 #endif
 }
@@ -107,7 +107,7 @@ void Capture::stop()
 {
 #if defined( CINDER_COCOA )
 	[((::CapturePlatformImpl*)mObj->mImpl) stopCapture];
-#else
+#elif defined( CINDER_MSW )
 	mObj->mImpl->stop();
 #endif
 }
@@ -116,7 +116,7 @@ bool Capture::isCapturing()
 {
 #if defined( CINDER_COCOA )
 	return [((::CapturePlatformImpl*)mObj->mImpl) isCapturing];
-#else
+#elif defined( CINDER_MSW )
 	return mObj->mImpl->isCapturing();
 #endif
 }
@@ -125,32 +125,32 @@ bool Capture::checkNewFrame() const
 {
 #if defined( CINDER_COCOA )
 	return [((::CapturePlatformImpl*)mObj->mImpl) checkNewFrame];
-#else
+#elif defined( CINDER_MSW )
 	return mObj->mImpl->checkNewFrame();
-#endif	
+#endif
 }
 
 Surface8u Capture::getSurface() const
 {
 #if defined( CINDER_COCOA )
 	return [((::CapturePlatformImpl*)mObj->mImpl) getCurrentFrame];
-#else
+#elif defined( CINDER_MSW )
 	return mObj->mImpl->getSurface();
 #endif
 }
 
-int32_t	Capture::getWidth() const { 
+int32_t	Capture::getWidth() const {
 #if defined( CINDER_COCOA )
 	return [((::CapturePlatformImpl*)mObj->mImpl) getWidth];
-#else 
+#elif defined( CINDER_MSW )
 	return mObj->mImpl->getWidth();
 #endif
 }
 
-int32_t	Capture::getHeight() const { 
+int32_t	Capture::getHeight() const {
 #if defined( CINDER_COCOA )
 	return [((::CapturePlatformImpl*)mObj->mImpl) getHeight];
-#else
+#elif defined( CINDER_MSW )
 	return mObj->mImpl->getHeight();
 #endif
 }
@@ -158,7 +158,7 @@ int32_t	Capture::getHeight() const {
 const Capture::DeviceRef Capture::getDevice() const {
 #if defined( CINDER_COCOA )
 	return [((::CapturePlatformImpl*)mObj->mImpl) getDevice];
-#else
+#elif defined( CINDER_MSW )
 	return mObj->mImpl->getDevice();
 #endif
 }

@@ -1,0 +1,11 @@
+TARGET = 'NormalMappingApp'
+APP_SOURCES  = ['NormalMappingApp.cpp']
+RESOURCES = ['diffuseMap_3.jpg', 'normalMap_3.png', 'specStrengthMap_3.jpg',
+	'../shaders/normalMap.frag', '../shaders/normalMap.vert']
+DEBUG = 0
+
+env = Environment()
+env.Append(APP_SOURCES = APP_SOURCES)
+
+SConscript('../../../scons/SConscript',
+	exports = ['env', 'TARGET', 'DEBUG', 'RESOURCES'])

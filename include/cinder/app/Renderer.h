@@ -82,6 +82,12 @@ class Renderer {
 
 	virtual HWND				getHwnd() = 0;
 	virtual HDC					getDc() { throw; } // the default behavior is failure
+#elif defined( CINDER_LINUX )
+	virtual void setup( App *aApp, _XDisplay *aDpy, Window aWnd ) = 0;
+
+	virtual void prepareToggleFullScreen() {}
+	virtual void finishToggleFullScreen() {}
+	virtual void kill() {}
 #endif
 
 	virtual Surface	copyWindowSurface( const Area &area ) = 0;
@@ -117,6 +123,11 @@ class RendererGl : public Renderer {
 	virtual HWND	getHwnd() { return mWnd; }
 	virtual void	prepareToggleFullScreen();
 	virtual void	finishToggleFullScreen();
+#elif defined( CINDER_LINUX )
+	virtual void	setup( App *aApp, _XDisplay *aDpy, Window win );
+	virtual void	kill();
+	virtual void	prepareToggleFullScreen();
+	virtual void	finishToggleFullScreen();
 #endif
 
 	enum	{ AA_NONE = 0, AA_MSAA_2, AA_MSAA_4, AA_MSAA_6, AA_MSAA_8, AA_MSAA_16, AA_MSAA_32 };
@@ -138,6 +149,10 @@ class RendererGl : public Renderer {
 #elif defined( CINDER_MSW )
 	class AppImplMswRendererGl	*mImpl;
 	HWND						mWnd;
+#elif defined( CINDER_LINUX )
+	class AppImplLinuxRendererGl *mImpl;
+	_XDisplay					*mDpy;
+	Window						mWin;
 #endif
 };
 

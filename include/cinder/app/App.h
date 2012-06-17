@@ -424,8 +424,10 @@ class App {
 #if defined( CINDER_MSW )
 	friend class AppImplMsw;
 	std::shared_ptr<cinder::msw::dostream>	mOutputStream;
-#else
+#elif defined( CINDER_COCOA )
 	static void				*sAutoReleasePool;
+#elif defined( CINDER_LINUX )
+	friend class AppImplLinux;
 #endif
 
 	Timer					mTimer;

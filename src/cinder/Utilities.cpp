@@ -41,11 +41,16 @@
 	#import <Foundation/NSFileManager.h>
 	#include <cxxabi.h>
 	#include <execinfo.h>
-#else
+#elif defined( CINDER_MSW )
 	#include <windows.h>
 	#include <Shlwapi.h>
 	#include <shlobj.h>
 	#include "cinder/msw/StackWalker.h"
+#elif defined( CINDER_LINUX )
+	#include <cstdlib>
+	#include <cstring>
+	#include <iconv.h>
+	#include <errno.h>
 #endif
 
 #include <vector>
@@ -61,15 +66,17 @@ namespace cinder {
 fs::path expandPath( const fs::path &path )
 {
 	string result;
-	
+
 #if defined( CINDER_COCOA )
 	NSString *pathNS = [NSString stringWithCString:path.c_str() encoding:NSUTF8StringEncoding];
 	NSString *resultPath = [pathNS stringByStandardizingPath];
 	result = string( [resultPath cStringUsingEncoding:NSUTF8StringEncoding] );
-#else
+#elif defined( CINDER_MSW )
 	char buffer[MAX_PATH];
 	::PathCanonicalizeA( buffer, path.string().c_str() );
-	result = buffer; 
+	result = buffer;
+#elif defined( CINDER_LINUX )
+	result = path.c_str(); // FIXME
 #endif
 
 	return fs::path( result );
@@ -83,11 +90,14 @@ fs::path getHomeDirectory()
 	NSString *home = ::NSHomeDirectory();
 	result = [home cStringUsingEncoding:NSUTF8StringEncoding];
 	result += "/";
-#else
+#elif defined( CINDER_MSW )
 	char buffer[MAX_PATH];
 	::SHGetFolderPathA( 0, CSIDL_PROFILE, NULL, SHGFP_TYPE_CURRENT, buffer );
 	result = buffer;
 	result += "\\";
+#elif defined( CINDER_LINUX )
+	result = getenv( "HOME" );
+	result += "/";
 #endif
 
 	return result;
@@ -101,11 +111,14 @@ fs::path getDocumentsDirectory()
 	NSArray *arrayPaths = ::NSSearchPathForDirectoriesInDomains( NSDocumentDirectory, NSUserDomainMask, YES );
 	NSString *docDir = [arrayPaths objectAtIndex:0];
 	return cocoa::convertNsString( docDir ) + "/";
-#else
+#elif defined( CINDER_MSW )
 	char buffer[MAX_PATH];
 	::SHGetFolderPathA( 0, CSIDL_MYDOCUMENTS, NULL, SHGFP_TYPE_CURRENT, buffer );
 	result = buffer;
 	result += "\\";
+#elif defined( CINDER_LINUX )
+	result = getenv( "HOME" );
+	result += "/Documents/";
 #endif
 
 	return result;
@@ -116,7 +129,7 @@ fs::path getTemporaryDirectory()
 #if defined( CINDER_COCOA )
 	NSString *docDir = ::NSTemporaryDirectory();
 	return cocoa::convertNsString( docDir );
-#else
+#elif defined( CINDER_MSW )
 	DWORD result = ::GetTempPathW( 0, L"" );
 	if( ! result )
 		throw std::runtime_error("Could not get system temp path");
@@ -128,12 +141,14 @@ fs::path getTemporaryDirectory()
 
 	std::wstring wideResult( tempPath.begin(), tempPath.begin() + static_cast<std::size_t>(result) );
 	return toUtf8( wideResult );
+#elif defined( CINDER_LINUX )
+	return mkdtemp( const_cast<char *>( "cinderXXXXXX" ) );
 #endif
 }
 
 fs::path getTemporaryFilePath( const std::string &prefix )
 {
-#if defined( CINDER_COCOA )
+#if defined( CINDER_COCOA ) || defined( CINDER_LINUX )
 	char path[2048];
 	sprintf( path, "%s%sXXXXXX", getTemporaryDirectory().c_str(), prefix.c_str() );
 	return string( mktemp( path ) );
@@ -198,8 +213,13 @@ bool createDirectories( const fs::path &path, bool createParents )
 #if defined( CINDER_COCOA )
 	NSString *pathNS = [NSString stringWithCString:dirPath.c_str() encoding:NSUTF8StringEncoding];
 	return static_cast<bool>( [[NSFileManager defaultManager] createDirectoryAtPath:pathNS withIntermediateDirectories:YES attributes:nil error:nil] );
-#else
+#elif defined( CINDER_MSW )
 	return ::SHCreateDirectoryExA( NULL, dirPath.string().c_str(), NULL ) == ERROR_SUCCESS;
+#elif defined( CINDER_LINUX )
+	if( createParents )
+		return fs::create_directory( path );
+	else
+		return fs::create_directories( path );
 #endif
 }
 
@@ -225,7 +245,7 @@ void deleteFile( const fs::path &path )
 {
 #if defined( CINDER_COCOA )
 	unlink( path.c_str() );
-#else
+#elif defined( CINDER_MSW )
 	if( ! ::DeleteFileW( toUtf16( path.string() ).c_str() ) ) {
 		DWORD err = GetLastError();
 	}
@@ -275,10 +295,29 @@ wstring toUtf16( const string &utf8 )
 	}
 
 	return wstring( &resultString[0] );
-#else
+#elif defined( CINDER_COCOA )
 	NSString *utf8NS = [NSString stringWithCString:utf8.c_str() encoding:NSUTF8StringEncoding];
 	return wstring( reinterpret_cast<const wchar_t*>( [utf8NS cStringUsingEncoding:NSUTF16LittleEndianStringEncoding] ) );
-#endif	
+#elif defined( CINDER_LINUX )
+	iconv_t cd = iconv_open( "WCHAR_T", "UTF-8" );
+
+    size_t utf8size = utf8.size();
+    char *utf8ptr = const_cast<char *>( utf8.c_str() );
+
+    wchar_t utf16[ utf8size + 1 ];
+    size_t utf16size = utf8size * sizeof( wchar_t );
+    char *utf16ptr = reinterpret_cast<char *>( &utf16[0] );
+
+    size_t result = iconv( cd, &utf8ptr, &utf8size, &utf16ptr, &utf16size );
+    if (result == static_cast<size_t>( -1 )) {
+        throw std::runtime_error( "Error in UTF-8 to UTF-16 conversion: " + string( strerror(errno) ) );
+    }
+
+    iconv_close( cd );
+    *( reinterpret_cast<wchar_t *>(utf16ptr) ) = L'\0';
+
+    return wstring( utf16 );
+#endif
 }
 
 string toUtf8( const wstring &utf16 )
@@ -298,9 +337,28 @@ string toUtf8( const wstring &utf16 )
 	}
 
 	return string( &resultString[0] );
-#else
+#elif defined( CINDER_COCOA )
 	NSString *utf16NS = [NSString stringWithCString:reinterpret_cast<const char*>( utf16.c_str() ) encoding:NSUTF16LittleEndianStringEncoding];
-	return string( [utf16NS cStringUsingEncoding:NSUTF8StringEncoding] );	
+	return string( [utf16NS cStringUsingEncoding:NSUTF8StringEncoding] );
+#elif defined( CINDER_LINUX )
+	iconv_t cd = iconv_open( "UTF-8", "WCHAR_T" );
+
+    size_t utf16size = utf16.size() * sizeof( wchar_t );
+    char *utf16ptr = reinterpret_cast<char *>( const_cast<wchar_t *>( &utf16[0] ) );
+
+    char utf8[ utf16size + 1 ];
+    size_t utf8size = utf16size;
+    char *utf8ptr = utf8;
+
+    size_t result = iconv( cd, &utf16ptr, &utf16size, &utf8ptr, &utf8size );
+    if (result == static_cast<size_t>( -1 )) {
+        throw std::runtime_error( "Error in UTF-16 to UTF-8 conversion: " + string( strerror(errno) ) );
+    }
+
+    iconv_close( cd );
+    *(utf8ptr) = '\0';
+
+    return string( utf8 );
 #endif
 }
 
@@ -308,7 +366,7 @@ void sleep( float milliseconds )
 {
 #if defined( CINDER_MSW )
 	::Sleep( static_cast<int>( milliseconds ) );
-#else
+#elif defined( CINDER_COCOA ) || defined( CINDER_LINUX )
 	useconds_t microsecs = milliseconds * 1000;
 	::usleep( microsecs );
 #endif
@@ -361,7 +419,7 @@ vector<string> stackTrace()
 #if defined( CINDER_MSW )
 	CinderStackWalker csw;
 	return csw.getEntries();
-#else
+#elif defined( CINDER_COCOA )
 	std::vector<std::string> result;
 	static const int MAX_DEPTH = 128;
 	void* callstack[MAX_DEPTH];
@@ -396,6 +454,10 @@ vector<string> stackTrace()
 	
 	free( strs );
 	
+	return result;
+#elif defined( CINDER_LINUX )
+	// TODO
+	std::vector<std::string> result;
 	return result;
 #endif
 }

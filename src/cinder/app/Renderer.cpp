@@ -33,13 +33,18 @@
 	#elif defined( CINDER_COCOA_TOUCH )
 		#include "cinder/cocoa/CinderCocoaTouch.h"
 		#import "cinder/app/AppImplCocoaTouchRendererGl.h"
-		#import "cinder/app/AppImplCocoaTouchRendererQuartz.h"		
+		#import "cinder/app/AppImplCocoaTouchRendererQuartz.h"
 	#endif
 
 #elif defined( CINDER_MSW )
 	#include "cinder/app/AppImplMsw.h"
 	#include "cinder/app/AppImplMswRendererGl.h"
 	#include "cinder/app/AppImplMswRendererGdi.h"
+
+#elif defined( CINDER_LINUX )
+	#include "cinder/app/AppImplLinux.h"
+	#include "cinder/app/AppImplLinuxRendererGl.h"
+
 #endif
 #include "cinder/ip/Flip.h"
 
@@ -179,12 +184,13 @@ Surface	RendererGl::copyWindowSurface( const Area &area )
 	return s;
 }
 
-#elif defined( CINDER_MSW )
+#elif defined( CINDER_MSW ) || defined( CINDER_LINUX )
 RendererGl::~RendererGl()
 {
 	delete mImpl;
 }
 
+#if defined( CINDER_MSW )
 void RendererGl::setup( App *aApp, HWND wnd, HDC dc )
 {
 	mWnd = wnd;
@@ -193,6 +199,17 @@ void RendererGl::setup( App *aApp, HWND wnd, HDC dc )
 		mImpl = new AppImplMswRendererGl( mApp, this );
 	mImpl->initialize( wnd, dc );
 }
+#elif defined( CINDER_LINUX )
+void RendererGl::setup( App *aApp, _XDisplay *aDpy, Window aWin )
+{
+	mApp = aApp;
+	mWin = aWin;
+	mDpy = aDpy;
+	if( ! mImpl )
+		mImpl = new AppImplLinuxRendererGl( mApp, mDpy, mWin, this );
+	mImpl->initialize( aDpy, aWin );
+}
+#endif
 
 void RendererGl::kill()
 {

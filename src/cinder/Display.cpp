@@ -35,10 +35,19 @@ namespace cinder {
 std::vector<DisplayRef >	Display::sDisplays;
 bool						Display::sDisplaysInitialized = false;
 
+#if defined( CINDER_LINUX )
+_XDisplay *Display::mXDisplay = NULL;
+#endif
+
 Display::~Display()
 {
 #if defined( CINDER_MAC )
 	[mScreen release];
+#elif defined( CINDER_LINUX )
+	if( mXDisplay != NULL ) {
+		XCloseDisplay( mXDisplay );
+		mXDisplay = NULL;
+	}
 #endif
 }
 
@@ -163,7 +172,37 @@ void Display::enumerateDisplays()
 	
 	sDisplaysInitialized = true;
 }
-#endif // defined( CINDER_MSW )
+
+#elif defined( CINDER_LINUX )
+
+void Display::enumerateDisplays()
+{
+	if( sDisplaysInitialized )
+		return;
+
+	mXDisplay = XOpenDisplay( NULL );
+	if( mXDisplay == NULL )
+		throw XOpenDisplayExc();
+
+	int screenCount = ScreenCount( mXDisplay );
+	for( int i = 0; i < screenCount; ++i ) {
+		shared_ptr<Display> newDisplay = shared_ptr<Display>( new Display );
+		Screen *screen = XScreenOfDisplay( mXDisplay, i );
+		newDisplay->mScreen = screen;
+		newDisplay->mArea = Area( 0, 0, WidthOfScreen( screen ), HeightOfScreen( screen ) );
+		newDisplay->mBitsPerPixel = PlanesOfScreen( screen );
+		sDisplays.push_back( newDisplay );
+	}
+
+	// ensure that the default screen is sDisplay[0]
+	size_t m = DefaultScreen( mXDisplay );
+	if( ( m != 0 ) && ( m < sDisplays.size() ) )
+		std::swap( sDisplays[0], sDisplays[m] );
+
+	sDisplaysInitialized = true;
+}
+
+#endif // defined( CINDER_LINUX )
 
 DisplayRef Display::getMainDisplay()
 {

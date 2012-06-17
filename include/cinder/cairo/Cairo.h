@@ -85,11 +85,15 @@ typedef struct _cairo_scaled_font cairo_scaled_font_t;
 /*struct _cairo_glyph;
 typedef struct _cairo_glyph cairo_glyph_t;*/
 
+#ifndef CINDER_LINUX
 struct _cairo_text_extents;
 typedef struct _cairo_text_extents cairo_text_extents_t;
 
 struct _cairo_font_extents;
 typedef struct _cairo_font_extents cairo_font_extents_t;
+#else
+#include <cairo.h>
+#endif
 
 namespace cinder { namespace cairo {
 /////////////////////////////////////////////////////////////////////////////
@@ -715,6 +719,8 @@ class Context
 SurfaceQuartz	createWindowSurface();
 #elif defined( CINDER_MSW )
 SurfaceGdi		createWindowSurface();
+#elif defined( CINDER_LINUX )
+//SurfaceXlib	createWindowSurface(); // TODO
 #endif
 
 // CONSTANTS

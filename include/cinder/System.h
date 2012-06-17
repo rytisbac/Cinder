@@ -95,7 +95,11 @@ class System {
 	uint32_t			mMaxMultiTouchPoints;
 #if defined( CINDER_MSW )
 	uint32_t			mCPUID_EBX, mCPUID_ECX, mCPUID_EDX;
-#endif 
+#endif
+
+#if defined( CINDER_LINUX )
+	static void linuxOsVersions();
+#endif
 };
 
 inline std::ostream& operator<<( std::ostream &outp, const System::NetworkAdapter &adapter )

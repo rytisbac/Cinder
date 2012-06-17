@@ -49,6 +49,12 @@
 	namespace cinder {
 		void cpuidwrap( int *p, unsigned int param );
 	}
+#elif defined( CINDER_LINUX )
+	#include <unistd.h>
+	#include <netdb.h>
+	#include <ifaddrs.h>
+	#include <sys/utsname.h>
+	#include <boost/lexical_cast.hpp>
 #endif
 
 #include <string>
@@ -255,10 +261,17 @@ void cpuid( int whichlp, PLOGICALPROCESSORDATA p )
 bool System::hasSse2()
 {
 	if( ! instance()->mCachedValues[HAS_SSE2] ) {
-#if defined( CINDER_COCOA )	
+#if defined( CINDER_COCOA )
 		instance()->mHasSSE2 = ( getSysCtlValue<int>( "hw.optional.sse2" ) == 1 );
-#else
+#elif defined( CINDER_MSW )
 		instance()->mHasSSE2 = ( instance()->mCPUID_EDX & 0x04000000 ) != 0;
+#elif defined( CINDER_LINUX )
+		instance()->mHasSSE2 =
+#		ifdef __SSE2__
+			1;
+#		else
+			0;
+#		endif
 #endif
 		instance()->mCachedValues[HAS_SSE2] = true;
 	}
@@ -269,10 +282,17 @@ bool System::hasSse2()
 bool System::hasSse3()
 {
 	if( ! instance()->mCachedValues[HAS_SSE3] ) {
-#if defined( CINDER_COCOA )	
+#if defined( CINDER_COCOA )
 		instance()->mHasSSE3 = ( getSysCtlValue<int>( "hw.optional.sse3" ) == 1 );
-#else
+#elif defined( CINDER_MSW )
 		instance()->mHasSSE3 = ( instance()->mCPUID_ECX & 0x00000001 ) != 0;
+#elif defined( CINDER_LINUX )
+		instance()->mHasSSE3 =
+#		ifdef __SSE3__
+			1;
+#		else
+			0;
+#		endif
 #endif
 		instance()->mCachedValues[HAS_SSE3] = true;
 	}
@@ -283,10 +303,17 @@ bool System::hasSse3()
 bool System::hasSse4_1()
 {
 	if( ! instance()->mCachedValues[HAS_SSE4_1] ) {
-#if defined( CINDER_COCOA )	
+#if defined( CINDER_COCOA )
 		instance()->mHasSSE4_1 = ( getSysCtlValue<int>( "hw.optional.sse4_1" ) == 1 );
-#else
+#elif defined( CINDER_MSW )
 		instance()->mHasSSE4_1 = ( instance()->mCPUID_ECX & ( 1 << 19 ) ) != 0;
+#elif defined( CINDER_LINUX )
+		instance()->mHasSSE4_1 =
+#		ifdef __SSE41__
+			1;
+#		else
+			0;
+#		endif
 #endif
 		instance()->mCachedValues[HAS_SSE4_1] = true;
 	}
@@ -297,10 +324,17 @@ bool System::hasSse4_1()
 bool System::hasSse4_2()
 {
 	if( ! instance()->mCachedValues[HAS_SSE4_2] ) {
-#if defined( CINDER_COCOA )	
+#if defined( CINDER_COCOA )
 		instance()->mHasSSE4_2 = ( getSysCtlValue<int>( "hw.optional.sse4_2" ) == 1 );
-#else
+#elif defined( CINDER_MSW )
 		instance()->mHasSSE4_2 = ( instance()->mCPUID_ECX & ( 1 << 20 ) ) != 0;
+#elif defined( CINDER_LINUX )
+		instance()->mHasSSE4_2 =
+#		ifdef __SSE42__
+			1;
+#		else
+			0;
+#		endif
 #endif
 		instance()->mCachedValues[HAS_SSE4_2] = true;
 	}
@@ -311,10 +345,17 @@ bool System::hasSse4_2()
 bool System::hasX86_64()
 {
 	if( ! instance()->mCachedValues[HAS_X86_64] ) {
-#if defined( CINDER_COCOA )	
+#if defined( CINDER_COCOA )
 		instance()->mHasX86_64 = ( getSysCtlValue<int>( "hw.optional.x86_64" ) == 1 );
-#else
+#elif defined( CINDER_MSW )
 		instance()->mHasX86_64 = ( instance()->mCPUID_EDX & ( 1 << 29 ) ) != 0;
+#elif defined( CINDER_LINUX )
+		instance()->mHasX86_64 =
+#		ifdef __x86_64__
+			1;
+#		else
+			0;
+#		endif
 #endif
 		instance()->mCachedValues[HAS_X86_64] = true;
 	}
@@ -327,7 +368,7 @@ int System::getNumCpus()
 	if( ! instance()->mCachedValues[PHYSICAL_CPUS] ) {
 #if defined( CINDER_COCOA )	
 		instance()->mPhysicalCPUs = getSysCtlValue<int>( "hw.packages" );
-#else
+#elif defined( CINDER_MSW )
 		const int MAX_NUMBER_OF_LOGICAL_PROCESSORS = 96;
 		const int MAX_NUMBER_OF_PHYSICAL_PROCESSORS = 8;
 		const int MAX_NUMBER_OF_IOAPICS = 16;
@@ -350,11 +391,13 @@ int System::getNumCpus()
 			PhysProcIds[LogicalProcessorMap[i].nProcId]++;
 		instance()->mPhysicalCPUs = 0;
 		for( int i = 0; i < (MAX_NUMBER_OF_PHYSICAL_PROCESSORS+MAX_NUMBER_OF_IOAPICS); i++ )
-			if( PhysProcIds[i] ) 
-				instance()->mPhysicalCPUs++;  
-		
+			if( PhysProcIds[i] )
+				instance()->mPhysicalCPUs++;
+
 		// unlock from a particular logical processor
 		::SetProcessAffinityMask( GetCurrentProcess(), processAffinityMask );
+#elif defined( CINDER_LINUX )
+	instance()->mPhysicalCPUs = 1; // FIXME
 #endif
 		instance()->mCachedValues[PHYSICAL_CPUS] = true;
 	}
@@ -365,18 +408,49 @@ int System::getNumCpus()
 int System::getNumCores()
 {
 	if( ! instance()->mCachedValues[LOGICAL_CPUS] ) {
-#if defined( CINDER_COCOA )	
+#if defined( CINDER_COCOA )
 		instance()->mLogicalCPUs = getSysCtlValue<int>( "hw.logicalcpu" );
-#else
+#elif defined( CINDER_MSW )
 		::SYSTEM_INFO sys;
 		::GetSystemInfo( &sys );
 		instance()->mLogicalCPUs = sys.dwNumberOfProcessors;
+#elif defined( CINDER_LINUX )
+	instance()->mLogicalCPUs =
+#	ifdef _SC_NPROCESSORS_ONLN
+		sysconf( _SC_NPROCESSORS_ONLN );
+#	else
+		1;
+#	endif
 #endif
 		instance()->mCachedValues[LOGICAL_CPUS] = true;
 	}
-	
+
 	return instance()->mLogicalCPUs;
 }
+
+#if defined( CINDER_LINUX )
+void System::linuxOsVersions()
+{
+	utsname s;
+	uname( &s );
+	string version( s.release );
+	size_t d0 = version.find( "." );
+	size_t d1 = version.find( ".", d0 + 1 );
+	size_t d2 = version.find_first_not_of( "0123456789", d1 + 1 );
+
+	try {
+		instance()->mOSMajorVersion = boost::lexical_cast<int>( version.substr( 0, d0 ) );
+		instance()->mOSMinorVersion = boost::lexical_cast<int>( version.substr( d0 + 1, d1 - d0 - 1) );
+		instance()->mOSBugFixVersion = boost::lexical_cast<int>( version.substr( d1 + 1, d2 - d1 - 1) );
+	} catch ( boost::bad_lexical_cast const& ) {
+		throw SystemExcFailedQuery();
+	}
+
+	instance()->mCachedValues[OS_MAJOR] = true;
+	instance()->mCachedValues[OS_MINOR] = true;
+	instance()->mCachedValues[OS_BUGFIX] = true;
+}
+#endif
 
 int System::getOsMajorVersion()
 {
@@ -384,19 +458,21 @@ int System::getOsMajorVersion()
 #if defined( CINDER_COCOA_TOUCH )
 		NSArray *sysVerComponents = [[[UIDevice currentDevice] systemVersion] componentsSeparatedByString:@"."];
 		instance()->mOSMajorVersion = [[sysVerComponents objectAtIndex:0] intValue];
-#elif defined( CINDER_COCOA )	
+#elif defined( CINDER_COCOA )
 		if( Gestalt(gestaltSystemVersionMajor, reinterpret_cast<SInt32*>( &(instance()->mOSMajorVersion) ) ) != noErr)
 			throw SystemExcFailedQuery();
-#else
+#elif defined( CINDER_MSW )
 		::OSVERSIONINFOEX info;
 		::ZeroMemory( &info, sizeof( OSVERSIONINFOEX ) );
 		info.dwOSVersionInfoSize = sizeof( OSVERSIONINFOEX );
 		::GetVersionEx( (OSVERSIONINFO *)&info );
 		instance()->mOSMajorVersion = info.dwMajorVersion;
+#elif defined( CINDER_LINUX )
+		linuxOsVersions();
 #endif
 		instance()->mCachedValues[OS_MAJOR] = true;
 	}
-	
+
 	return instance()->mOSMajorVersion;
 }
 
@@ -406,19 +482,21 @@ int System::getOsMinorVersion()
 #if defined( CINDER_COCOA_TOUCH )
 		NSArray *sysVerComponents = [[[UIDevice currentDevice] systemVersion] componentsSeparatedByString:@"."];
 		instance()->mOSMinorVersion = [[sysVerComponents objectAtIndex:1] intValue];	
-#elif defined( CINDER_COCOA )	
+#elif defined( CINDER_COCOA )
 		if( Gestalt(gestaltSystemVersionMinor, reinterpret_cast<SInt32*>( &(instance()->mOSMinorVersion) ) ) != noErr)
 			throw SystemExcFailedQuery();
-#else
+#elif defined( CINDER_MSW )
 		::OSVERSIONINFOEX info;
 		::ZeroMemory( &info, sizeof( OSVERSIONINFOEX ) );
 		info.dwOSVersionInfoSize = sizeof( OSVERSIONINFOEX );
 		::GetVersionEx( reinterpret_cast<LPOSVERSIONINFO>( &info ) );
 		instance()->mOSMinorVersion = info.dwMinorVersion;
+#elif defined( CINDER_LINUX )
+		linuxOsVersions();
 #endif
 		instance()->mCachedValues[OS_MINOR] = true;
 	}
-	
+
 	return instance()->mOSMinorVersion;
 }
 
@@ -431,19 +509,21 @@ int System::getOsBugFixVersion()
 			instance()->mOSBugFixVersion = [[sysVerComponents objectAtIndex:2] intValue];
 		else
 			instance()->mOSBugFixVersion = 0;
-#elif defined( CINDER_COCOA )	
+#elif defined( CINDER_COCOA )
 		if( Gestalt(gestaltSystemVersionBugFix, reinterpret_cast<SInt32*>( &(instance()->mOSBugFixVersion) ) ) != noErr)
 			throw SystemExcFailedQuery();
-#else
+#elif defined( CINDER_MSW )
 		::OSVERSIONINFOEX info;
 		::ZeroMemory( &info, sizeof( OSVERSIONINFOEX ) );
 		info.dwOSVersionInfoSize = sizeof( OSVERSIONINFOEX );
 		::GetVersionEx( reinterpret_cast<LPOSVERSIONINFO>( &info ) );
 		instance()->mOSBugFixVersion = info.wServicePackMajor;
+#elif defined( CINDER_LINUX )
+		getOsMajorVersion();
 #endif
 		instance()->mCachedValues[OS_BUGFIX] = true;
 	}
-	
+
 	return instance()->mOSBugFixVersion;
 }
 
@@ -462,10 +542,12 @@ bool System::hasMultiTouch()
 		int value = ::GetSystemMetrics( 94/*SM_DIGITIZER*/ );
 		instance()->mHasMultiTouch = (value & 0x00000080/*NID_READY*/ ) && 
 				( (value & 0x00000040/*NID_MULTI_INPUT*/ ) || (value & 0x00000001/*NID_INTEGRATED_TOUCH*/ ) );
+#elif defined( CINDER_LINUX )
+		instance()->mHasMultiTouch = false; // FIXME
 #endif
 		instance()->mCachedValues[MULTI_TOUCH] = true;
 	}
-	
+
 	return instance()->mHasMultiTouch;
 }
 
@@ -478,10 +560,12 @@ int32_t System::getMaxMultiTouchPoints()
 		instance()->mMaxMultiTouchPoints = 6; // we don't seem to be able to query this at runtime; should be hardcoded based on the device
 #elif defined( CINDER_MSW )
 		instance()->mMaxMultiTouchPoints = ::GetSystemMetrics( 95/*SM_MAXIMUMTOUCHES*/ );
+#elif defined( CINDER_LINUX )
+		instance()->mMaxMultiTouchPoints = 10; // FIXME
 #endif
 		instance()->mCachedValues[MAX_MULTI_TOUCH_POINTS] = true;
 	}
-	
+
 	return instance()->mMaxMultiTouchPoints;
 }
 
@@ -489,7 +573,7 @@ vector<System::NetworkAdapter> System::getNetworkAdapters()
 {
 	vector<System::NetworkAdapter> adapters;
 
-#if defined( CINDER_COCOA )
+#if defined( CINDER_COCOA ) || defined( CINDER_LINUX )
 	struct ifaddrs *interfaces = NULL;
 	struct ifaddrs *currentInterface = NULL;
 
@@ -554,7 +638,7 @@ std::string System::getIpAddress()
 		if( (adaptIt->getIpAddress() != "127.0.0.1") && (adaptIt->getIpAddress() != "0.0.0.0") )
 			result = adaptIt->getIpAddress();
 	}
-	
+
 	return result;
 }
 

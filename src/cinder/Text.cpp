@@ -140,6 +140,8 @@ class Line {
 	void render( CGContextRef &cgContext, float currentY, float xBorder, float maxWidth );
 #elif defined( CINDER_MSW )
 	void render( Gdiplus::Graphics *graphics, float currentY, float xBorder, float maxWidth );
+#elif defined( CINDER_LINUX )
+	//void render( CGContextRef &cgContext, float currentY, float xBorder, float maxWidth );
 #endif
 
 	enum { LEFT, RIGHT, CENTERED };
@@ -457,7 +459,7 @@ Surface renderStringPow2( const string &str, const Font &font, const ColorA &col
 	::CGContextRelease( cgContext );
 	return result;
 }
-#elif defined( CINDER_MAC) || defined( CINDER_MSW )
+#elif defined( CINDER_MAC) || defined( CINDER_MSW ) || defined( CINDER_LINUX )
 Surface renderString( const string &str, const Font &font, const ColorA &color, float *baselineOffset )
 {
 	Line line;
@@ -512,8 +514,23 @@ Surface renderString( const string &str, const Font &font, const ColorA &color, 
 	::GdiFlush();
 
 	delete offscreenBitmap;
-	delete offscreenGraphics;		
-#endif	
+	delete offscreenGraphics;
+#elif defined( CINDER_LINUX )
+	// TODO
+	Surface result( pixelWidth, pixelHeight, true, SurfaceChannelOrder::RGBA );
+	//::CGContextRef cgContext = cocoa::createCgBitmapContext( result );
+	ip::fill( &result, ColorA( 0, 0, 0, 0 ) );
+
+	float currentY = totalHeight + 1.0f;
+	currentY -= line.mAscent + line.mLeadingOffset;
+	//line.render( cgContext, currentY, (float)0, pixelWidth );
+
+	// force all the rendering to finish and release the context
+	//::CGContextFlush( cgContext );
+	//::CGContextRelease( cgContext );
+
+	ip::unpremultiply( &result );
+#endif
 
 	if( baselineOffset )
 		*baselineOffset = line.mDescent;

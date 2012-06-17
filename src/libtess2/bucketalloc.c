@@ -32,6 +32,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "tesselator.h"
+#include "bucketalloc.h"
 
 //#define CHECK_BOUNDS
 

@@ -18,4 +18,12 @@ lib/cinder*.lib
 *.sdf
 Debug/
 Release/
+
 ipch/
+
+# scons
+scons/libcinder*.a
+scons/*.pyc
+.sconsign.dblite
+*.o
+

@@ -1,0 +1,9 @@
+TARGET = 'TextureFontApp'
+APP_SOURCES  = ['TextureFontApp.cpp']
+DEBUG = 0
+
+env = Environment()
+env.Append(APP_SOURCES = APP_SOURCES)
+
+SConscript('../../../scons/SConscript',
+	exports = ['env', 'TARGET', 'DEBUG'])

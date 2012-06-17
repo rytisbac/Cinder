@@ -1,0 +1,9 @@
+TARGET = 'ListenerBasicApp'
+APP_SOURCES  = ['ListenerBasicApp.cpp', 'SquareListener.cpp']
+DEBUG = 0
+
+env = Environment()
+env.Append(APP_SOURCES = APP_SOURCES)
+
+SConscript('../../../scons/SConscript',
+	exports = ['env', 'TARGET', 'DEBUG'])

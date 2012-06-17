@@ -125,7 +125,7 @@ Texture::Texture( const Surface8u &surface, Format format )
 Texture::Texture( const Surface32f &surface, Format format )
 	: mObj( shared_ptr<Obj>( new Obj( surface.getWidth(), surface.getHeight() ) ) )
 {
-#if defined( CINDER_MAC )
+#if defined( CINDER_MAC ) || defined( CINDER_LINUX )
 	bool supportsTextureFloat = gl::isExtensionAvailable( "GL_ARB_texture_float" );
 #elif defined( CINDER_MSW )
 	bool supportsTextureFloat = GLEE_ARB_texture_float != 0;
@@ -179,7 +179,7 @@ Texture::Texture( const Channel8u &channel, Format format )
 Texture::Texture( const Channel32f &channel, Format format )
 	: mObj( shared_ptr<Obj>( new Obj( channel.getWidth(), channel.getHeight() ) ) )
 {
-#if defined( CINDER_MAC )
+#if defined( CINDER_MAC ) || defined( CINDER_LINUX )
 	bool supportsTextureFloat = gl::isExtensionAvailable( "GL_ARB_texture_float" );
 #elif defined( CINDER_MSW )
 	bool supportsTextureFloat = GLEE_ARB_texture_float != 0;
@@ -310,7 +310,7 @@ void Texture::init( ImageSourceRef imageSource, const Format &format )
 	mObj->mWidth = mObj->mCleanWidth = imageSource->getWidth();
 	mObj->mHeight = mObj->mCleanHeight = imageSource->getHeight();
 
-#if defined( CINDER_MAC )
+#if defined( CINDER_MAC ) || defined( CINDER_LINUX )
 	bool supportsTextureFloat = gl::isExtensionAvailable( "GL_ARB_texture_float" );
 #elif defined( CINDER_MSW )
 	bool supportsTextureFloat = GLEE_ARB_texture_float != 0;

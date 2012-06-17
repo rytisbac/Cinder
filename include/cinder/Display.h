@@ -36,12 +36,17 @@
 	#include <windows.h>
 	#undef min
 	#undef max
+#elif defined( CINDER_LINUX )
+	#include "cinder/Exception.h"
+	#include <X11/Xlib.h>
 #endif
 
 #include <map>
 #include <vector>
 
 namespace cinder {
+
+class Display;
 
 typedef std::shared_ptr<class Display> 	DisplayRef;
 
@@ -73,7 +78,12 @@ class Display {
 	static DisplayRef			findFromHmonitor( HMONITOR hMonitor );
 	static BOOL CALLBACK enumMonitorProc( HMONITOR hMonitor, HDC hdc, LPRECT rect, LPARAM lParam );
 #endif
-	
+
+#if defined( CINDER_LINUX )
+	Screen*			getScreen() const { return mScreen; }
+	static _XDisplay*	getXDisplay() { return mXDisplay; }
+#endif
+
  private:
 	Area		mArea;
 	int			mBitsPerPixel;
@@ -82,6 +92,9 @@ class Display {
 	CGDirectDisplayID	mDirectDisplayID;
 #elif defined( CINDER_MSW )
 	HMONITOR			mMonitor;
+#elif defined( CINDER_LINUX )
+	static _XDisplay	*mXDisplay;
+	Screen				*mScreen;
 #endif
 	
 	static void		enumerateDisplays();
@@ -89,5 +102,10 @@ class Display {
 	static std::vector<DisplayRef>	sDisplays;
 	static bool						sDisplaysInitialized;
 };
+
+#if defined( CINDER_LINUX )
+//! Exception for failed XOpenDisplay
+class XOpenDisplayExc : public Exception {};
+#endif
 
 } // namespace cinder

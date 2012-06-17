@@ -1,0 +1,10 @@
+TARGET = 'RDiffusionApp'
+APP_SOURCES  = ['RDiffusionApp.cpp']
+RESOURCES = ['gsrd_frag.glsl', 'passThru_vert.glsl', 'starter.jpg']
+DEBUG = 0
+
+env = Environment()
+env.Append(APP_SOURCES = APP_SOURCES)
+
+SConscript('../../../scons/SConscript',
+	exports = ['env', 'TARGET', 'DEBUG', 'RESOURCES'])

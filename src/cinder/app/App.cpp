@@ -35,6 +35,8 @@
 #elif defined( CINDER_MSW )
 	#include "cinder/msw/OutputDebugStringStream.h"
 	#include "cinder/app/AppImplMsw.h"
+#elif defined( CINDER_LINUX )
+	#include "cinder/app/AppImplLinux.h"
 #endif
 
 using namespace std;
@@ -182,8 +184,10 @@ DataSourceRef App::loadResource( const string &macPath, int mswID, const string 
 {
 #if defined( CINDER_COCOA )
 	return loadResource( macPath );
-#else
+#elif defined( CINDER_MSW )
 	return DataSourceBuffer::create( AppImplMsw::loadResource( mswID, mswType ), macPath );
+#elif defined( CINDER_LINUX )
+	return DataSourceBuffer::create( AppImplLinux::loadResource( mswID, mswType ), macPath );
 #endif
 }
 
@@ -196,13 +200,16 @@ DataSourceRef App::loadResource( const string &macPath )
 	else
 		return DataSourcePath::create( resourcePath );
 }
-#else
-
+#elif defined( CINDER_MSW )
 DataSourceRef App::loadResource( int mswID, const string &mswType )
 {
 	return DataSourceBuffer::create( AppImplMsw::loadResource( mswID, mswType ) );
 }
-
+#elif defined( CINDER_LINUX )
+DataSourceRef App::loadResource( int mswID, const string &mswType )
+{
+	return DataSourceBuffer::create( AppImplLinux::loadResource( mswID, mswType ) );
+}
 #endif
 
 
@@ -431,9 +438,9 @@ fs::path App::getSaveFilePath( const fs::path &initialPath, vector<string> exten
 
 std::ostream& App::console()
 {
-#if defined( CINDER_COCOA )
+#if defined( CINDER_COCOA ) || defined( CINDER_LINUX )
 	return std::cout;
-#else
+#elif defined( CINDER_MSW )
 	if( ! mOutputStream )
 		mOutputStream = shared_ptr<cinder::msw::dostream>( new cinder::msw::dostream );
 	return *mOutputStream;

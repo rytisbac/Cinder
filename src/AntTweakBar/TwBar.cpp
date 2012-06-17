@@ -6096,6 +6096,7 @@ bool CTwBar::MouseButton(ETwMouseButtonID _Button, bool _Pressed, int _X, int _Y
 				const wchar_t *WebPage = L"http://www.antisphere.com/Wiki/tools:anttweakbar";
                 ShellExecute(NULL, L"open", WebPage, NULL, NULL, SW_SHOWNORMAL);
             #elif defined ANT_UNIX         
+				const char *WebPage = "http://www.antisphere.com/Wiki/tools:anttweakbar";
 				// brute force: try all the possible browsers (I don't know how to find the default one; someone?)
                 char DefaultBrowsers[] = "firefox,mozilla,konqueror,galeon,opera,dillo,netscape";
                 char *browser = strtok(DefaultBrowsers, ",");

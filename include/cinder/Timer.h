@@ -54,6 +54,8 @@ class Timer {
 	::CFAbsoluteTime	mStartTime, mEndTime;
 #elif defined( CINDER_MSW )
 	double				mStartTime, mEndTime, mInvNativeFreq;
+#elif defined( CINDER_LINUX )
+	double				mStartTime, mEndTime;
 #endif
 };
 
