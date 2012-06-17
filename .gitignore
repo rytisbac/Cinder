@@ -24,6 +24,7 @@ ipch/
 # scons
 scons/libcinder*.a
 scons/*.pyc
+scons/config.log
 .sconsign.dblite
 *.o
 

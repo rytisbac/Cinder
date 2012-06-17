@@ -343,8 +343,8 @@ void SurfacePs::dscComment( const char *comment )
 SurfaceEps::SurfaceEps( const fs::path &filePath, double widthInPoints, double heightInPoints, bool enableLevel3 )
 	: SurfaceBase( (int32_t)widthInPoints, (int32_t)heightInPoints )
 {
-	mCairoSurface = cairo_ps_surface_create( filePath.string().c_str(), widthInPoints, heightInPoints ); 
-	cairo_ps_surface_set_eps( mCairoSurface, TRUE );
+	mCairoSurface = cairo_ps_surface_create( filePath.string().c_str(), widthInPoints, heightInPoints );
+	cairo_ps_surface_set_eps( mCairoSurface, 1 );
 	cairo_ps_surface_restrict_to_level( mCairoSurface, ( enableLevel3 ) ? CAIRO_PS_LEVEL_3 : CAIRO_PS_LEVEL_2 );
 }
 

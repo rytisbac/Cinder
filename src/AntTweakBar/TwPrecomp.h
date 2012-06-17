@@ -42,8 +42,9 @@
 #   pragma warning(pop)
 #endif
 
-#if defined(_UNIX)
+#if defined(_UNIX) || defined(__linux__)
 #   define ANT_UNIX
+#   include "cinder/gl/gl.h"
 #   include <X11/cursorfont.h>
 #   define GLX_GLXEXT_LEGACY
 #   include <GL/glx.h>
