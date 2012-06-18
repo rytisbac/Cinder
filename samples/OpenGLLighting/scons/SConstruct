@@ -1,9 +1,6 @@
-TARGET = 'OpenGLLightingApp'
-APP_SOURCES  = ['OpenGLLightingApp.cpp', 'InfoPanel.cpp']
-DEBUG = 0
-
 env = Environment()
-env.Append(APP_SOURCES = APP_SOURCES)
 
-SConscript('../../../scons/SConscript',
-	exports = ['env', 'TARGET', 'DEBUG'])
+env['APP_TARGET'] = 'OpenGLLightingApp'
+env['APP_SOURCES'] = ['OpenGLLightingApp.cpp', 'InfoPanel.cpp']
+
+SConscript('../../../scons/SConscript', exports = 'env')

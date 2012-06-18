@@ -1,11 +1,8 @@
-TARGET = 'OBJLoaderApp'
-APP_SOURCES  = ['OBJLoaderApp.cpp']
-RESOURCES = ['cube.obj', 'shader.frag', 'shader.vert', 'warpdodec.obj',
-		'../../data/cinder_logo.png']
-DEBUG = 0
-
 env = Environment()
-env.Append(APP_SOURCES = APP_SOURCES)
 
-SConscript('../../../scons/SConscript',
-	exports = ['env', 'TARGET', 'DEBUG', 'RESOURCES'])
+env['APP_TARGET'] = 'OBJLoaderApp'
+env['APP_SOURCES'] = ['OBJLoaderApp.cpp']
+env['RESOURCES'] = ['cube.obj', 'shader.frag', 'shader.vert', 'warpdodec.obj',
+		'../../data/cinder_logo.png']
+
+SConscript('../../../scons/SConscript', exports = 'env')

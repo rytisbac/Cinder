@@ -1,10 +1,7 @@
-TARGET = 'QuaternionAccumApp'
-APP_SOURCES  = ['QuaternionAccumApp.cpp']
-RESOURCES = ['Plane.png', 'Stripe.png']
-DEBUG = 0
-
 env = Environment()
-env.Append(APP_SOURCES = APP_SOURCES)
 
-SConscript('../../../scons/SConscript',
-	exports = ['env', 'TARGET', 'DEBUG', 'RESOURCES'])
+env['APP_TARGET'] = 'QuaternionAccumApp'
+env['APP_SOURCES'] = ['QuaternionAccumApp.cpp']
+env['RESOURCES'] = ['Plane.png', 'Stripe.png']
+
+SConscript('../../../scons/SConscript', exports = 'env')

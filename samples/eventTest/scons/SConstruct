@@ -1,9 +1,6 @@
-TARGET = 'eventTest'
-APP_SOURCES  = ['eventTest.cpp']
-DEBUG = 0
-
 env = Environment()
-env.Append(APP_SOURCES = APP_SOURCES)
 
-SConscript('../../../scons/SConscript',
-	exports = ['env', 'TARGET', 'DEBUG'])
+env['APP_TARGET'] = 'eventTest'
+env['APP_SOURCES'] = ['eventTest.cpp']
+
+SConscript('../../../scons/SConscript', exports = 'env')

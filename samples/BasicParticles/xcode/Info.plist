@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleIconFile</key>
-	<string></string>
+	<string>${ICON_FILE}</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.barbariangroup.BasicParticles</string>
 	<key>CFBundleInfoDictionaryVersion</key>

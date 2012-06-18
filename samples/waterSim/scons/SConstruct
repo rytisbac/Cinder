@@ -1,0 +1,7 @@
+env = Environment()
+
+env['APP_TARGET'] = 'waterSimApp'
+env['APP_SOURCES'] = ['waterSimApp.cpp', 'grid.cpp', 'particles.cpp']
+env['RESOURCES'] = ['info.png', 'logo.png', 'arrow.png']
+
+SConscript('../../../scons/SConscript', exports = 'env')

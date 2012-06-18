@@ -1,31 +1,18 @@
-Import('*')
+Import('env')
 
-TARGET = '#' + TARGET
+TARGET = '#' + env['APP_TARGET']
 
 SOURCES = map(lambda s: (s[0] == '/') and s or ('#../src/' + s), env['APP_SOURCES'])
 
 platform = env['PLATFORM']
 
-# FIXME: remove these, all things here will be added by the SConscript of the block
-if 'INCLUDES' in locals():
-	INCLUDES = map(lambda s: (s[0] == '/') and s or ('#' + s), INCLUDES)
-else:
-	INCLUDES = []
-
-if 'LIBS' not in locals():
-	LIBS = []
-
-if 'LIBPATH' not in locals():
-	LIBPATH = []
-
-
 if platform == 'darwin':
-	if 'ICON' not in locals():
+	if 'ICON' not in env:
 		ICON = '../tools/TinderBox.app/Contents/Resources/CinderApp.icns'
 	else:
-		ICON = '#../resources/' + ICON
+		ICON = '#../resources/' + env['ICON']
 
-INCLUDES += ['#../include']
+INCLUDES = ['#../include']
 
 INCLUDES += ['../include',
 		'../boost',
@@ -33,15 +20,22 @@ INCLUDES += ['../include',
 		'../include/cinder/app',
 		'../src/AntTweakBar']
 
-if DEBUG:
-	LIBS += ['cinder_d']
+if 'DEBUG' in env:
+	DEBUG = env['DEBUG']
 else:
-	LIBS += ['cinder']
+	DEBUG = 0
+
+if DEBUG:
+	LIBS = ['cinder_d']
+else:
+	LIBS = ['cinder']
 
 if platform == 'darwin':
 	INCLUDES += ['../include/macosx/png',
 			'../include/macosx/cairo']
-	LIBPATH = ['../lib/macosx/'] + LIBPATH
+	LIBPATH = ['../lib/macosx/']
+else:
+	LIBPATH = []
 
 LIBPATH += ['.']
 
@@ -57,8 +51,8 @@ elif platform == 'posix':
 	# librt for glibc timer
 	LIBS += ['rt']
 
-CCFLAGS = ' -x c++ -fmessage-length=0 -pipe -Wno-trigraphs -Wreturn-type -Wunused-variable -ffast-math -fvisibility-inlines-hidden '
-# CCFLAGS += ' -Wextra -Wall '
+CFLAGS = ' -fmessage-length=0 -pipe -Wno-trigraphs -Wreturn-type -Wunused-variable -ffast-math '
+CCFLAGS = CFLAGS + ' -x c++ -fvisibility-inlines-hidden '
 
 LINKFLAGS = '-dead_strip '
 
@@ -81,12 +75,7 @@ CPPPATH += INCLUDES
 if 'BLOCKS' not in locals():
 	BLOCKS = []
 for block in BLOCKS:
-	if block == 'opencv':
-		CPPPATH += ['../blocks/opencv/include',
-				'../blocks/opencv/OpenCV/include']
-		LIBPATH += ['../blocks/opencv/OpenCV/lib']
-		LIBS += ['cv', 'cxcore']
-	elif block == 'kinect':
+	if block == 'kinect':
 		CPPPATH += ['../blocks/Cinder-Kinect/include']
 		if platform == 'darwin':
 			LIBS += [File('../blocks/Cinder-Kinect/lib/macosx/libfreenect.a'),
@@ -107,6 +96,12 @@ if platform == 'darwin':
 			'AppKit CoreData Foundation CoreServices '))
 	env.Append(FRAMEWORKPATH = '/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/')
 
+	# change compile flags for ObjC files
+	CCFLAGS_OBJC = CFLAGS + ' -x objective-c++ -fobjc-call-cxx-cdtors -fvisibility-inlines-hidden -arch i386 -mmacosx-version-min=10.6 '
+	for i in range(len(SOURCES)):
+		if SOURCES[i].endswith('.mm') or SOURCES[i].endswith('.m'):
+				SOURCES[i] = env.Object(SOURCES[i], CCFLAGS = CCFLAGS_OBJC)
+
 # build the application
 env.Program(source = SOURCES, target = TARGET)
 
@@ -116,22 +111,22 @@ if platform == 'darwin':
 	from osxbundle import *
 	TOOL_BUNDLE(env)
 
-	if 'RESOURCES' not in locals():
+	if 'RESOURCES' not in env:
 		RESOURCES = []
 	else:
-		RESOURCES = ['#../resources/' + s for s in RESOURCES]
+		RESOURCES = ['#../resources/' + s for s in env['RESOURCES']]
 
-	if 'ASSETS' not in locals():
+	if 'ASSETS' not in env:
 		ASSETS = []
 	else:
-		ASSETS = [['#../assets/' + s, 'assets/' + s] for s in ASSETS]
+		ASSETS = [['#../assets/' + s, 'assets/' + s] for s in env['ASSETS']]
 
-	if 'PLIST' not in locals():
+	if 'PLIST' not in env:
 		PLIST = '#../xcode/Info.plist',
 	else:
-		PLIST = '#' + PLIST
+		PLIST = '#' + env['PLIST']
 		
-	bundle = env.Alias('app', env.MakeBundle(TARGET + '.app',
+	env.Alias('app', env.MakeBundle(TARGET + '.app',
 		TARGET,
 		'key',
 		PLIST,

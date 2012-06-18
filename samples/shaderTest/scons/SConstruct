@@ -1,11 +1,8 @@
-TARGET = 'shaderText'
-APP_SOURCES  = ['../shaderTest.cpp' ]
-RESOURCES = ['../data/gaussianBlur_frag.glsl', '../data/passThru_vert.glsl',
-		'../../data/cinder_logo.png']
-DEBUG = 0
-
 env = Environment()
-env.Append(APP_SOURCES = APP_SOURCES)
 
-SConscript('../../../scons/SConscript',
-	exports = ['env', 'TARGET', 'DEBUG', 'RESOURCES'])
+env['APP_TARGET'] = 'shaderText'
+env['APP_SOURCES'] = ['../shaderTest.cpp' ]
+env['RESOURCES'] = ['../data/gaussianBlur_frag.glsl',
+		'../data/passThru_vert.glsl', '../../data/cinder_logo.png']
+
+SConscript('../../../scons/SConscript', exports = 'env')

@@ -1,10 +1,7 @@
-TARGET = 'GLSLLightingApp'
-APP_SOURCES  = ['GLSLLightingApp.cpp', 'InfoPanel.cpp']
-RESOURCES = ['vert.glsl', 'frag.glsl']
-DEBUG = 0
-
 env = Environment()
-env.Append(APP_SOURCES = APP_SOURCES)
 
-SConscript('../../../scons/SConscript',
-	exports = ['env', 'TARGET', 'DEBUG', 'RESOURCES'])
+env['APP_TARGET'] = 'GLSLLightingApp'
+env['APP_SOURCES'] = ['GLSLLightingApp.cpp', 'InfoPanel.cpp']
+env['RESOURCES'] = ['vert.glsl', 'frag.glsl']
+
+SConscript('../../../scons/SConscript', exports = 'env')

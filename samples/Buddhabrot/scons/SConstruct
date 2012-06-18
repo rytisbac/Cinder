@@ -1,10 +1,8 @@
-TARGET = 'Buddhabrot'
-APP_SOURCES  = ['Buddhabrot.cpp']
-DEBUG = 0
-PLIST = '../xcode/Buddhabrot-Info.plist'
-
 env = Environment()
-env.Append(APP_SOURCES = APP_SOURCES)
 
-SConscript('../../../scons/SConscript',
-	exports = ['env', 'TARGET', 'DEBUG', 'PLIST'])
+env['APP_TARGET'] = 'Buddhabrot'
+env['APP_SOURCES'] = ['Buddhabrot.cpp']
+env['DEBUG'] = 0
+env['PLIST'] = '../xcode/Buddhabrot-Info.plist'
+
+SConscript('../../../scons/SConscript', exports = 'env')

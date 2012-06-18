@@ -1,9 +1,7 @@
-TARGET = 'EaseGalleryApp'
-APP_SOURCES  = ['EaseGalleryApp.cpp']
-DEBUG = 0
-
 env = Environment()
-env.Append(APP_SOURCES = APP_SOURCES)
 
-SConscript('../../../scons/SConscript',
-	exports = ['env', 'TARGET', 'DEBUG'])
+env['APP_TARGET'] = 'EaseGalleryApp'
+env['APP_SOURCES'] = ['EaseGalleryApp.cpp']
+env['DEBUG'] = 0
+
+SConscript('../../../scons/SConscript', exports = 'env')

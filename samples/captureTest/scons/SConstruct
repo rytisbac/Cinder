@@ -1,9 +1,7 @@
-TARGET = 'captureTest'
-APP_SOURCES  = ['captureTest.cpp']
-DEBUG = 0
-
 env = Environment()
-env.Append(APP_SOURCES = APP_SOURCES)
 
-SConscript('../../../scons/SConscript',
-	exports = ['env', 'TARGET', 'DEBUG'])
+env['APP_TARGET'] = 'captureTest'
+env['APP_SOURCES'] = ['captureTest.cpp']
+env['DEBUG'] = 0
+
+SConscript('../../../scons/SConscript', exports = 'env')

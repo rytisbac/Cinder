@@ -1,10 +1,7 @@
-TARGET = 'TextTestApp'
-APP_SOURCES  = ['TextTestApp.cpp']
-RESOURCES = ['icon.png', 'Saint-Andrews Queen.ttf']
-DEBUG = 0
-
 env = Environment()
-env.Append(APP_SOURCES = APP_SOURCES)
 
-SConscript('../../../scons/SConscript',
-	exports = ['env', 'TARGET', 'DEBUG', 'RESOURCES'])
+env['APP_TARGET'] = 'TextTestApp'
+env['APP_SOURCES'] = ['TextTestApp.cpp']
+env['RESOURCES'] = ['icon.png', 'Saint-Andrews Queen.ttf']
+
+SConscript('../../../scons/SConscript', exports = 'env')

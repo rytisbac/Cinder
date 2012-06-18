@@ -1,9 +1,6 @@
-TARGET = 'rayMarcherApp'
-APP_SOURCES  = ['rayMarcherApp.cpp', 'RayMarcher.cpp']
-DEBUG = 0
-
 env = Environment()
-env.Append(APP_SOURCES = APP_SOURCES)
 
-SConscript('../../../scons/SConscript',
-	exports = ['env', 'TARGET', 'DEBUG'])
+env['APP_TARGET'] = 'rayMarcherApp'
+env['APP_SOURCES'] = ['rayMarcherApp.cpp', 'RayMarcher.cpp']
+
+SConscript('../../../scons/SConscript', exports = 'env')

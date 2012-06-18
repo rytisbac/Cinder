@@ -1,10 +1,7 @@
-TARGET = 'SurfaceBasicApp'
-APP_SOURCES  = ['SurfaceBasicApp.cpp']
-RESOURCES = ['../../data/cinder_logo.png']
-DEBUG = 0
-
 env = Environment()
-env.Append(APP_SOURCES = APP_SOURCES)
 
-SConscript('../../../scons/SConscript',
-	exports = ['env', 'TARGET', 'DEBUG', 'RESOURCES'])
+env['APP_TARGET'] = 'SurfaceBasicApp'
+env['APP_SOURCES'] = ['SurfaceBasicApp.cpp']
+env['RESOURCES'] = ['../../data/cinder_logo.png']
+
+SConscript('../../../scons/SConscript', exports = 'env')
