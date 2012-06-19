@@ -1,7 +1,8 @@
 env = Environment()
 
 env['APP_TARGET'] = 'msaFluidBasicApp'
-env['APP_SOURCES'] = ['msaFluidBasicApp.cpp']
+env['APP_SOURCES'] = ['msaFluidParticlesApp.cpp', 'Particle.cpp',
+		'ParticleSystem.cpp']
 
 # msaFluid block
 env = SConscript('../../../scons/SConscript', exports = 'env')
