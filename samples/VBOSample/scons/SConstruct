@@ -1,0 +1,8 @@
+env = Environment()
+
+env['APP_TARGET'] = 'VBOSampleApp'
+env['APP_SOURCES'] = ['VBOSampleApp.cpp']
+env['RESOURCES'] = ['../../data/cinder_logo.png']
+env['DEBUG'] = 0
+
+SConscript('../../../scons/SConscript', exports = 'env')
