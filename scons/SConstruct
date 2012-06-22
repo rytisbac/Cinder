@@ -105,8 +105,6 @@ LINKFLAGS = ' -dead_strip '
 
 if platform == 'darwin':
 	CFLAGS += ' -arch i386 -mmacosx-version-min=10.6 ' + \
-		' -DMAC_OS_X_VERSION_MAX_ALLOWED=MAC_OS_X_VERSION_10_6 ' + \
-		' -DMAC_OS_X_VERSION_MIN_REQUIRED=MAC_OS_X_VERSION_10_6 ' + \
 		' -fpascal-strings -fasm-blocks '
 	LINKFLAGS += ' -arch i386 -dead_strip '
 
@@ -127,7 +125,7 @@ env.Append(CCFLAGS = Split(CCFLAGS))
 env.Append(LINKFLAGS = Split(LINKFLAGS))
 
 if platform == 'darwin':
-	CCFLAGS_OBJC = CFLAGS + ' -x objective-c++ -fobjc-call-cxx-cdtors -fvisibility-inlines-hidden '
+	CCFLAGS_OBJC = CFLAGS + ' -x objective-c++ -fvisibility-inlines-hidden '
 
 	env.Append(FRAMEWORKS = Split('Accelerate AudioToolbox AudioUnit CoreAudio ' +  \
 		'ApplicationServices QuickTime QTKit CoreVideo Carbon OpenGl Cocoa ' +  \
