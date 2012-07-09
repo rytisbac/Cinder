@@ -16,10 +16,10 @@ platform = env['PLATFORM']
 CINDERSRC = Split('Area.cpp AxisAlignedBox.cpp BSpline.cpp BSplineFit.cpp ' +
 		'BandedMatrix.cpp Buffer.cpp Camera.cpp ' +
 		'Channel.cpp CinderMath.cpp Color.cpp DataSource.cpp ' +
-		'DataTarget.cpp Exception.cpp ' +
+		'DataTarget.cpp Exception.cpp Frustum.cpp ' +
 		'ImageIo.cpp ' +
 		'Matrix.cpp ObjLoader.cpp ' +
-		'Path2d.cpp Perlin.cpp PolyLine.cpp Rand.cpp Ray.cpp Rect.cpp ' + 
+		'Path2d.cpp Perlin.cpp Plane.cpp PolyLine.cpp Rand.cpp Ray.cpp Rect.cpp ' +
 		'Serial.cpp Shape2d.cpp Sphere.cpp Stream.cpp Surface.cpp System.cpp ' +
 		'Text.cpp Timer.cpp Triangulate.cpp TriMesh.cpp Url.cpp Xml.cpp ' +
 		'Capture.cpp Display.cpp Font.cpp ' +
