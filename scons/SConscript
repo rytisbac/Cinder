@@ -114,7 +114,7 @@ if platform == 'darwin':
 	if 'RESOURCES' not in env:
 		RESOURCES = []
 	else:
-		RESOURCES = ['#../resources/' + s for s in env['RESOURCES']]
+		RESOURCES = map(lambda s: (s[0] == '/') and s or ('#../resources/' + s), env['RESOURCES'])
 
 	if 'ASSETS' not in env:
 		ASSETS = []
