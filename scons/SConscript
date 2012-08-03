@@ -119,7 +119,17 @@ if platform == 'darwin':
 	if 'ASSETS' not in env:
 		ASSETS = []
 	else:
-		ASSETS = [['#../assets/' + s, 'assets/' + s] for s in env['ASSETS']]
+		# if an asset contains a regular expression call Glob
+		assets = []
+		abs_assets = Dir('#../assets/').abspath
+		for asset in env['ASSETS']:
+			if 1 in [c in asset for c in '*?[]']:
+				glob_assets = Glob('#../assets/' + asset, strings = True)
+				# convert to relative path
+				assets += [os.path.relpath(f, abs_assets) for f in glob_assets]
+			else:
+				assets.append(asset)
+		ASSETS = [['#../assets/' + s, 'assets/' + s] for s in assets]
 
 	if 'PLIST' not in env:
 		PLIST = '#../xcode/Info.plist',
