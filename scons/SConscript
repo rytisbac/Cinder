@@ -84,7 +84,7 @@ for block in BLOCKS:
 
 		SOURCES += ['../blocks/Cinder-Kinect/src/Kinect.cpp']
 
-env.Replace(CCFLAGS = Split(CCFLAGS))
+env.Append(CCFLAGS = Split(CCFLAGS))
 env.Append(CPPPATH = CPPPATH)
 env.Append(LIBPATH = LIBPATH)
 env.Append(LIBS = LIBS)
