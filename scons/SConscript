@@ -114,7 +114,17 @@ if platform == 'darwin':
 	if 'RESOURCES' not in env:
 		RESOURCES = []
 	else:
-		RESOURCES = map(lambda s: (s[0] == '/') and s or ('#../resources/' + s), env['RESOURCES'])
+		# if a resource contains a regular expression call Glob
+		resources = []
+		abs_resources = Dir('#../resources/').abspath
+		for res in env['RESOURCES']:
+			if 1 in [c in res for c in '*?[]']:
+				glob_resources = Glob('#../resources/' + res, strings = True)
+				# convert to relative path
+				resources += [os.path.relpath(f, abs_resources) for f in glob_resources]
+			else:
+				resources.append(res)
+		RESOURCES = map(lambda s: (s[0] == '/') and s or [('#../resources/' + s), s], resources)
 
 	if 'ASSETS' not in env:
 		ASSETS = []
