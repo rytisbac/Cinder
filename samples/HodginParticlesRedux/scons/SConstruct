@@ -1,0 +1,10 @@
+env = Environment()
+
+env['APP_TARGET'] = 'HodginParticlesReduxApp'
+env['APP_SOURCES'] = ['HodginParticlesReduxApp.cpp', 'Constraint.cpp', 'Emitter.cpp',
+		'Force.cpp', 'ForceGravity.cpp', 'ForcePerlin.cpp', 'ForceRepulsion.cpp',
+		'InfoPanel.cpp', 'Particle.cpp', 'ParticleController.cpp']
+env['RESOURCES'] = ['bump.png', 'emitter.png', 'normal.png', 'particle.png',
+		'specExponent.png', 'emitter_frag.glsl', 'emitter_vert.glsl']
+
+SConscript('../../../scons/SConscript', exports = 'env')

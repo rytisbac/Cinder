@@ -1,0 +1,8 @@
+env = Environment()
+
+env['APP_TARGET'] = 'TextInputTweenApp'
+env['APP_SOURCES'] = ['TextInputTweenApp.cpp', 'Character.cpp']
+env['RESOURCES'] = ['Alfphabet-IV.ttf']
+env['DEBUG'] = 0
+
+SConscript('../../../../scons/SConscript', exports = 'env')
