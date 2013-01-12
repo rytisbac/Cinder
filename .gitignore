@@ -19,3 +19,10 @@ lib/cinder*.lib
 Debug/
 Release/
 ipch/
+
+# scons
+scons/libcinder*.a
+scons/*.pyc
+scons/config.log
+.sconsign.dblite
+*.o

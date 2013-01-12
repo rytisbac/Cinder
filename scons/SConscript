@@ -1,0 +1,177 @@
+Import('env')
+
+TARGET = '#' + env['APP_TARGET']
+
+SOURCES = map(lambda s: (s[0] == '/') and s or ('#../src/' + s), env['APP_SOURCES'])
+
+platform = env['PLATFORM']
+
+INCLUDES = ['#../include']
+
+INCLUDES += ['../include',
+		'../boost',
+		'../include/rapidxml',
+		'../include/cinder/app',
+		'../src/AntTweakBar',
+		'../src/libtess2']
+
+if 'DEBUG' in env:
+	DEBUG = env['DEBUG']
+else:
+	DEBUG = 0
+
+if DEBUG:
+	LIBS = ['cinder_d']
+else:
+	LIBS = ['cinder']
+
+LIBS += ['libc++']
+
+if platform == 'darwin':
+	LIBPATH = ['../lib/macosx/']
+else:
+	LIBPATH = []
+
+LIBPATH += ['.']
+
+if platform == 'darwin':
+	LIBS += [File(LIBPATH[0] + s) for s in Split('libboost_date_time.a libboost_system.a ' + \
+			'libboost_filesystem.a libz.a')]
+elif platform == 'posix':
+	for lib in ['x11', 'gl', 'libcurl', 'zlib']:
+		env.ParseConfig('pkg-config --cflags --libs %s' % (lib))
+	# FIXME: no boost pkg-config
+	LIBS += ['boost_date_time-mt', 'boost_system-mt', 'boost_thread-mt',
+			'boost_filesystem-mt']
+	# librt for glibc timer
+	LIBS += ['rt']
+
+CFLAGS = ' -fmessage-length=0 -Wno-trigraphs ' + \
+		' -Wno-missing-field-initializers -Wreturn-type ' + \
+		' -Wno-missing-prototypes -Wformat -Wno-missing-braces -Wparentheses ' + \
+		' -Wswitch -Wno-unused-function -Wno-unused-label ' + \
+		' -Wno-unused-parameter -Wunused-variable -Wunused-value ' + \
+		' -Wno-empty-body -Wno-uninitialized -Wno-unknown-pragmas -Wno-shadow ' + \
+		' -Wno-four-char-constants -Wno-conversion -Wno-shorten-64-to-32 ' + \
+		' -Wpointer-sign -Wno-newline-eof -fasm-blocks -ffast-math ' + \
+		' -Wdeprecated-declarations -Wno-sign-conversion '
+
+if DEBUG:
+	if platform == 'darwin':
+		CFLAGS += '-g -O0 '
+	else:
+		CFLAGS += '-ggdb2 -O0 '
+else:
+	CFLAGS += '-g0 -O3 '
+
+LINKFLAGS = ' -dead_strip '
+
+if platform == 'darwin':
+	env['CC'] = 'clang'
+	env['CXX'] = 'clang++'
+
+	CFLAGS += ' -arch i386 -mmacosx-version-min=10.7 ' + \
+		' -fpascal-strings -fasm-blocks '
+	LINKFLAGS += ' -arch i386 -all_load '
+
+	if 'ICON' not in env:
+		ICON = '../samples/BasicAppMultiWindow/resources/CinderApp.icns'
+	else:
+		ICON = '#../resources/' + env['ICON']
+
+elif platform == 'posix':
+	CFLAGS += '-pthread '
+
+CCFLAGS = CFLAGS + ' -x c++ -fvisibility-inlines-hidden -std=c++11 ' + \
+		' -stdlib=libc++ -Wno-non-virtual-dtor -Wno-overloaded-virtual ' + \
+		' -Wno-exit-time-destructors -Wno-c++11-extensions -Winvalid-offsetof '
+
+CPPPATH = ['/usr/include']
+CPPPATH += INCLUDES
+
+env.Append(CCFLAGS = Split(CCFLAGS))
+env.Append(CPPPATH = CPPPATH)
+env.Append(LIBPATH = LIBPATH)
+env.Append(LIBS = LIBS)
+env.Replace(LINKFLAGS = Split(LINKFLAGS))
+
+if platform == 'darwin':
+	env.Append(FRAMEWORKS = Split('Accelerate AudioToolbox AudioUnit CoreAudio ' + \
+			'ApplicationServices QuickTime QTKit CoreVideo Carbon OpenGl Cocoa ' + \
+			'AppKit CoreData Foundation CoreServices '))
+
+	# change compile flags for ObjC files
+	CCFLAGS_OBJC = CFLAGS + ' -x objective-c++ -fvisibility-inlines-hidden ' + \
+		'-std=c++11 -stdlib=libc++ -Wno-implicit-atomic-properties ' + \
+		'-Wno-receiver-is-weak -Wno-non-virtual-dtor -Wno-overloaded-virtual ' + \
+		'-Wno-exit-time-destructors -Wno-selector -Wno-strict-selector-match ' + \
+		'-Wno-undeclared-selector -Wno-deprecated-implementations -Wno-arc-abi ' + \
+		'-Wno-c++11-extensions -Wprotocol -Winvalid-offsetof ' + \
+		'"-DIBOutlet=__attribute__((iboutlet))" ' + \
+		'"-DIBOutletCollection(ClassName)=__attribute__((iboutletcollection(ClassName)))" ' + \
+		'"-DIBAction=void)__attribute__((ibaction)" '
+	for i in range(len(SOURCES)):
+		if SOURCES[i].endswith('.mm') or SOURCES[i].endswith('.m'):
+				SOURCES[i] = env.Object(SOURCES[i], CCFLAGS = CCFLAGS_OBJC)
+
+# build the application
+env.Program(source = SOURCES, target = TARGET)
+
+# build the osx app
+if platform == 'darwin':
+	import sys, os
+	from osxbundle import *
+	TOOL_BUNDLE(env)
+
+	if 'RESOURCES' not in env:
+		RESOURCES = []
+	else:
+		# if a resource contains a regular expression call Glob
+		resources = []
+		abs_resources = Dir('#../resources/').abspath
+		for res in env['RESOURCES']:
+			if 1 in [c in res for c in '*?[]']:
+				glob_resources = Glob('#../resources/' + res, strings = True)
+				# convert to relative path
+				resources += [os.path.relpath(f, abs_resources) for f in glob_resources]
+			else:
+				resources.append(res)
+		RESOURCES = map(lambda s: (s[0] == '/') and s or [('#../resources/' + s), s], resources)
+
+	if 'ASSETS' not in env:
+		ASSETS = []
+	else:
+		# if an asset contains a regular expression call Glob
+		assets = []
+		abs_assets = Dir('#../assets/').abspath
+		for asset in env['ASSETS']:
+			if 1 in [c in asset for c in '*?[]']:
+				glob_assets = Glob('#../assets/' + asset, strings = True)
+				# convert to relative path
+				assets += [os.path.relpath(f, abs_assets) for f in glob_assets]
+			else:
+				assets.append(asset)
+		ASSETS = [['#../assets/' + s, 'assets/' + s] for s in assets]
+
+	if 'PLIST' not in env:
+		PLIST = '#../xcode/Info.plist',
+	else:
+		PLIST = '#' + env['PLIST']
+		
+	env.Alias('app', env.MakeBundle(TARGET + '.app',
+		TARGET,
+		'key',
+		PLIST,
+		resources = RESOURCES + ASSETS,
+		typecode='APPL',
+		icon_file = ICON,
+		subst_dict = {'\${EXECUTABLE_NAME}': TARGET[1:],
+						'\${PRODUCT_NAME}': TARGET[1:],
+						'\${ICON_FILE}': basename(ICON)}))
+
+	env.Clean(TARGET, TARGET + '.app')
+
+# run
+if platform == 'darwin':
+	env.AlwaysBuild(env.Alias('run', [TARGET + '.app'], 'open %s' % env.Dir(TARGET + '.app').abspath))
+
