@@ -52,7 +52,7 @@
 
 @implementation AppImplCocoaRendererGl
 
-- (id)initWithFrame:(NSRect)frame cinderView:(NSView*)aCinderView app:(cinder::app::App*)aApp renderer:(cinder::app::RendererGl*)aRenderer sharedRenderer:(cinder::app::RendererGlRef)sharedRenderer
+- (id)initWithFrame:(NSRect)frame cinderView:(NSView*)aCinderView app:(cinder::app::App*)aApp renderer:(cinder::app::RendererGl*)aRenderer sharedRenderer:(cinder::app::RendererGlRef)sharedRenderer withRetina:(BOOL)retinaEnabled
 {
 	self = [super init];
 //	self = [super initWithFrame:frame cinderView:aCinderView app:aApp];
@@ -79,6 +79,10 @@ if( ! view )
 	}
 
 	[cinderView addSubview:view];
+	
+	if( retinaEnabled )
+		[view setWantsBestResolutionOpenGLSurface:YES];
+	
 	[[view openGLContext] makeCurrentContext];
 
 	GLint swapInterval = 1;
@@ -136,7 +140,8 @@ if( ! view )
 - (void)defaultResize
 {
 	NSSize nsSize = [view frame].size;
-	glViewport( 0, 0, nsSize.width, nsSize.height );
+	NSSize backingSize = [view convertSizeToBacking:nsSize];
+	glViewport( 0, 0, backingSize.width, backingSize.height );
 	cinder::CameraPersp cam( nsSize.width, nsSize.height, 60.0f );
 
 	glMatrixMode( GL_PROJECTION );

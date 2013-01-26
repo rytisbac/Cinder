@@ -352,7 +352,6 @@ void setMatricesWindowPersp( int screenWidth, int screenHeight, float fovDegrees
 	if( originUpperLeft ) {
 		glScalef( 1.0f, -1.0f, 1.0f );           // invert Y axis so increasing Y goes down.
 		glTranslatef( 0.0f, (float)-screenHeight, 0.0f );       // shift origin up to upper-left corner.
-		glViewport( 0, 0, screenWidth, screenHeight );
 	}
 }
 
@@ -373,7 +372,6 @@ void setMatricesWindow( int screenWidth, int screenHeight, bool originUpperLeft 
 #endif
 	glMatrixMode( GL_MODELVIEW );
 	glLoadIdentity();
-	glViewport( 0, 0, screenWidth, screenHeight );
 }
 
 Area getViewport()

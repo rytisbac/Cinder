@@ -78,7 +78,7 @@
 	
 	// create all the requested windows
 	for( const auto &format : formats ) {
-		WindowImplBasicCocoa *winImpl = [WindowImplBasicCocoa instantiate:format withAppImpl:self];
+		WindowImplBasicCocoa *winImpl = [ WindowImplBasicCocoa instantiate:format withAppImpl:self withRetina:mApp->getSettings().isHighDensityDisplayEnabled() ];
 		[mWindows addObject:winImpl];
 		if( format.isFullScreen() )
 			[winImpl setFullScreen:YES];
@@ -145,7 +145,7 @@
 
 - (cinder::app::WindowRef)createWindow:(cinder::app::Window::Format)format
 {
-	WindowImplBasicCocoa *winImpl = [WindowImplBasicCocoa instantiate:format withAppImpl:self];
+	WindowImplBasicCocoa *winImpl = [ WindowImplBasicCocoa instantiate:format withAppImpl:self withRetina:mApp->getSettings().isHighDensityDisplayEnabled() ];
 	[mWindows addObject:winImpl];
 	if( format.isFullScreen() )
 		[winImpl setFullScreen:YES];
@@ -420,7 +420,7 @@
 
 - (float)getContentScale
 {
-	return [mWin backingScaleFactor];
+	return [mCinderView contentScaleFactor];
 }
 
 - (void)setPos:(cinder::Vec2i)pos
@@ -664,7 +664,7 @@
 	return mWindowRef;
 }
 
-+ (WindowImplBasicCocoa*)instantiate:(cinder::app::Window::Format)winFormat withAppImpl:(AppImplCocoaBasic*)appImpl;
++ (WindowImplBasicCocoa*)instantiate:(cinder::app::Window::Format)winFormat withAppImpl:(AppImplCocoaBasic*)appImpl withRetina:(BOOL)retinaEnabled;
 {
 	WindowImplBasicCocoa *winImpl = [[WindowImplBasicCocoa alloc] init];
 

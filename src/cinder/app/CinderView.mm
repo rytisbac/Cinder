@@ -67,7 +67,13 @@
 - (void)setupRendererWithFrame:(NSRect)frame renderer:(cinder::app::RendererRef)renderer sharedRenderer:(cinder::app::RendererRef)sharedRenderer
 {
 	mRenderer = renderer;
-	mRenderer->setup( mApp, NSRectToCGRect( frame ), self, sharedRenderer );
+	mRenderer->setup( mApp, NSRectToCGRect( frame ), self, sharedRenderer, mApp->getSettings().isHighDensityDisplayEnabled() );
+	
+	if ( mApp->getSettings().isHighDensityDisplayEnabled() ) {
+		mContentScaleFactor = self.window.backingScaleFactor;
+	} else {
+		mContentScaleFactor = 1.0f;
+	}
 
 	// register for drop events
 	if( mReceivesEvents )
@@ -79,6 +85,22 @@
 		[self setWantsRestingTouches:YES];
 		if( ! mTouchIdMap )
 			mTouchIdMap = [[NSMutableDictionary alloc] initWithCapacity:10];
+	}
+}
+
+- (float)contentScaleFactor
+{
+	return mContentScaleFactor;
+}
+
+
+- (void)viewDidChangeBackingProperties
+{
+	if ( mApp->getSettings().isHighDensityDisplayEnabled() ) {
+		mContentScaleFactor = self.window.backingScaleFactor;
+		mRenderer->defaultResize();
+	} else {
+		mContentScaleFactor = 1.0f;
 	}
 }
 
@@ -243,8 +265,8 @@
 - (void)mouseDown:(NSEvent*)theEvent
 {
 	NSPoint curPoint		= [theEvent locationInWindow];
-	int x					= curPoint.x - [self frame].origin.x;
-	int y					= [self frame].size.height - ( curPoint.y - [self frame].origin.y );
+	int x					= (curPoint.x - [self frame].origin.x);
+	int y					= ([self frame].size.height - ( curPoint.y - [self frame].origin.y ));
 	int mods				= [self prepMouseEventModifiers:theEvent];
 	
 	mods |= cinder::app::MouseEvent::LEFT_DOWN;
@@ -255,8 +277,8 @@
 - (void)rightMouseDown:(NSEvent *)theEvent
 {
 	NSPoint curPoint		= [theEvent locationInWindow];
-	int x					= curPoint.x - [self frame].origin.x;
-	int y					= [self frame].size.height - ( curPoint.y - [self frame].origin.y );
+	int x					= (curPoint.x - [self frame].origin.x);
+	int y					= ([self frame].size.height - ( curPoint.y - [self frame].origin.y ));
 	int mods				= [self prepMouseEventModifiers:theEvent];
 	
 	mods |= cinder::app::MouseEvent::RIGHT_DOWN;
@@ -267,8 +289,8 @@
 - (void)otherMouseDown:(NSEvent *)theEvent
 {
 	NSPoint curPoint		= [theEvent locationInWindow];
-	int x					= curPoint.x - [self frame].origin.x;
-	int y					= [self frame].size.height - ( curPoint.y - [self frame].origin.y );
+	int x					= (curPoint.x - [self frame].origin.x);
+	int y					= ([self frame].size.height - ( curPoint.y - [self frame].origin.y ));
 	int mods				= [self prepMouseEventModifiers:theEvent];
 	
 	mods |= cinder::app::MouseEvent::MIDDLE_DOWN;
@@ -279,8 +301,8 @@
 - (void)mouseUp:(NSEvent*)theEvent
 {
 	NSPoint curPoint		= [theEvent locationInWindow];
-	int x					= curPoint.x - [self frame].origin.x;
-	int y					= [self frame].size.height - ( curPoint.y - [self frame].origin.y );
+	int x					= (curPoint.x - [self frame].origin.x);
+	int y					= ([self frame].size.height - ( curPoint.y - [self frame].origin.y ));
 	int mods				= [self prepMouseEventModifiers:theEvent];
 	
 	mods |= cinder::app::MouseEvent::LEFT_DOWN;
@@ -291,19 +313,20 @@
 - (void)rightMouseUp:(NSEvent*)theEvent
 {
 	NSPoint curPoint		= [theEvent locationInWindow];
-	int y					= [self frame].size.height - curPoint.y;
+	int x					= (curPoint.x - [self frame].origin.x);
+	int y					= ([self frame].size.height - ( curPoint.y - [self frame].origin.y ));
 	int mods				= [self prepMouseEventModifiers:theEvent];
 	
 	mods |= cinder::app::MouseEvent::RIGHT_DOWN;
-	cinder::app::MouseEvent mouseEvent( [mDelegate getWindowRef], cinder::app::MouseEvent::RIGHT_DOWN, curPoint.x, y, mods, 0.0f, [theEvent modifierFlags] );
+	cinder::app::MouseEvent mouseEvent( [mDelegate getWindowRef], cinder::app::MouseEvent::RIGHT_DOWN, x, y, mods, 0.0f, [theEvent modifierFlags] );
 	[mDelegate mouseUp:&mouseEvent];
 }
 
 - (void)otherMouseUp:(NSEvent*)theEvent
 {
 	NSPoint curPoint		= [theEvent locationInWindow];
-	int x					= curPoint.x - [self frame].origin.x;
-	int y					= [self frame].size.height - ( curPoint.y - [self frame].origin.y );
+	int x					= (curPoint.x - [self frame].origin.x);
+	int y					= ([self frame].size.height - ( curPoint.y - [self frame].origin.y ));
 	int mods				= [self prepMouseEventModifiers:theEvent];
 	
 	mods |= cinder::app::MouseEvent::MIDDLE_DOWN;
@@ -314,8 +337,8 @@
 - (void)mouseMoved:(NSEvent*)theEvent
 {
 	NSPoint curPoint		= [theEvent locationInWindow];
-	int x					= curPoint.x - [self frame].origin.x;
-	int y					= [self frame].size.height - ( curPoint.y - [self frame].origin.y );
+	int x					= (curPoint.x - [self frame].origin.x);
+	int y					= ([self frame].size.height - ( curPoint.y - [self frame].origin.y ));
 	int mods				= [self prepMouseEventModifiers:theEvent];
 	
 	cinder::app::MouseEvent mouseEvent( [mDelegate getWindowRef], 0, x, y, mods, 0.0f, [theEvent modifierFlags] );
@@ -325,8 +348,8 @@
 - (void)rightMouseDragged:(NSEvent*)theEvent
 {
 	NSPoint curPoint		= [theEvent locationInWindow];
-	int x					= curPoint.x - [self frame].origin.x;
-	int y					= [self frame].size.height - ( curPoint.y - [self frame].origin.y );
+	int x					= (curPoint.x - [self frame].origin.x);
+	int y					= ([self frame].size.height - ( curPoint.y - [self frame].origin.y ));
 	int mods				= [self prepMouseEventModifiers:theEvent];
 	
 	mods |= cinder::app::MouseEvent::RIGHT_DOWN;
@@ -337,8 +360,8 @@
 - (void)otherMouseDragged:(NSEvent*)theEvent
 {
 	NSPoint curPoint		= [theEvent locationInWindow];
-	int x					= curPoint.x - [self frame].origin.x;
-	int y					= [self frame].size.height - ( curPoint.y - [self frame].origin.y );
+	int x					= (curPoint.x - [self frame].origin.x);
+	int y					= ([self frame].size.height - ( curPoint.y - [self frame].origin.y ));
 	int mods				= [self prepMouseEventModifiers:theEvent];
 	
 	mods |= cinder::app::MouseEvent::MIDDLE_DOWN;
@@ -349,8 +372,8 @@
 - (void)mouseDragged:(NSEvent*)theEvent
 {
 	NSPoint curPoint		= [theEvent locationInWindow];
-	int x					= curPoint.x - [self frame].origin.x;
-	int y					= [self frame].size.height - ( curPoint.y - [self frame].origin.y );
+	int x					= (curPoint.x - [self frame].origin.x);
+	int y					= ([self frame].size.height - ( curPoint.y - [self frame].origin.y ));
 	int mods				= [self prepMouseEventModifiers:theEvent];
 	
 	mods |= cinder::app::MouseEvent::LEFT_DOWN;
@@ -362,8 +385,8 @@
 {
 	float wheelDelta		= [theEvent deltaX] + [theEvent deltaY];
 	NSPoint curPoint		= [theEvent locationInWindow];
-	int x					= curPoint.x - [self frame].origin.x;
-	int y					= [self frame].size.height - ( curPoint.y - [self frame].origin.y );
+	int x					= (curPoint.x - [self frame].origin.x);
+	int y					= ([self frame].size.height - ( curPoint.y - [self frame].origin.y ));
 	int mods				= [self prepMouseEventModifiers:theEvent];
 	
 	cinder::app::MouseEvent mouseEvent( [mDelegate getWindowRef], 0, x, y, mods, wheelDelta / 4.0f, [theEvent modifierFlags] );

@@ -45,8 +45,13 @@
 	eaglLayer.drawableProperties = [NSDictionary dictionaryWithObjectsAndKeys:
 										[NSNumber numberWithBool:FALSE], kEAGLDrawablePropertyRetainedBacking, kEAGLColorFormatRGBA8, kEAGLDrawablePropertyColorFormat, nil];
 
-	mBackingWidth = 0;
-	mBackingHeight = 0;
+	mBackingWidth	= 0;
+	mBackingHeight	= 0;
+	
+	mPointsWidth	= 0;
+	mPointsHeight	= 0;
+	
+	
 	mMsaaSamples = cinder::app::RendererGl::sAntiAliasingSamples[renderer->getAntiAliasing()];
 	mUsingMsaa = mMsaaSamples > 0;
 
@@ -143,7 +148,9 @@
 	else {
 		glBindFramebufferOES( GL_FRAMEBUFFER_OES, mViewFramebuffer );
 	}
-    glViewport( 0, 0, mBackingWidth, mBackingHeight );
+    
+	glViewport( 0, 0, mBackingWidth, mBackingHeight );
+	
 }
 
 - (void)flushBuffer
@@ -169,7 +176,8 @@
 
 - (void)defaultResize
 {
-	cinder::gl::setMatricesWindow( mBackingWidth, mBackingHeight );
+	glViewport( 0, 0, mBackingWidth, mBackingHeight );
+	ci::gl::setMatricesWindowPersp( mCinderView.frame.size.width, mCinderView.frame.size.height );
 }
 
 - (BOOL)needsDrawRect
