@@ -463,7 +463,7 @@
 
 	unsigned int styleMask;
 	if( mBorderless )
-		styleMask = NSBorderlessWindowMask;
+		styleMask = ( mResizable ) ? ( NSBorderlessWindowMask | NSResizableWindowMask ) : NSBorderlessWindowMask;
 	else if( mResizable )
 		styleMask = NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask| NSResizableWindowMask;
 	else
@@ -683,12 +683,12 @@
 	unsigned int styleMask;
 	
 	if( winImpl->mBorderless )
-		styleMask = NSBorderlessWindowMask;
+		styleMask = ( winImpl->mResizable ) ? ( NSBorderlessWindowMask | NSResizableWindowMask ) : ( NSBorderlessWindowMask );
 	else if( winImpl->mResizable )
 		styleMask = NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask| NSResizableWindowMask;
 	else
 		styleMask = NSTitledWindowMask;
-	winImpl->mWin = [[NSWindow alloc] initWithContentRect:winRect
+	winImpl->mWin = [[CinderWindow alloc] initWithContentRect:winRect
 									  styleMask:styleMask
 										backing:NSBackingStoreBuffered
 										  defer:NO
