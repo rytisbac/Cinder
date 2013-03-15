@@ -1,0 +1,198 @@
+# scons file to build libcinder
+
+import os
+from os.path import basename
+
+TARGET = 'cinder'
+
+DEBUG = int(ARGUMENTS.get('DEBUG', '0'))
+if DEBUG:
+	TARGET += '_d'
+
+env = Environment(ENV = {'PATH' : os.environ['PATH']})
+
+platform = env['PLATFORM']
+
+CINDERSRC = Split('Area.cpp AxisAlignedBox.cpp Base64.cpp BSpline.cpp ' + \
+		'BSplineFit.cpp BandedMatrix.cpp Buffer.cpp Camera.cpp ' + \
+		'Channel.cpp CinderMath.cpp Color.cpp DataSource.cpp ' + \
+		'DataTarget.cpp Exception.cpp Frustum.cpp ' + \
+		'ImageIo.cpp Json.cpp ' + \
+		'Matrix.cpp ObjLoader.cpp ' + \
+		'Path2d.cpp Perlin.cpp Plane.cpp PolyLine.cpp Rand.cpp Ray.cpp Rect.cpp ' + \
+		'Serial.cpp Shape2d.cpp Sphere.cpp Stream.cpp Surface.cpp System.cpp ' + \
+		'Text.cpp Timer.cpp Triangulate.cpp TriMesh.cpp Url.cpp Xml.cpp ' + \
+		'Capture.cpp Display.cpp Font.cpp ' + \
+		'Timeline.cpp TimelineItem.cpp Tween.cpp ' + \
+		'Utilities.cpp Clipboard.cpp ')
+
+if platform == 'darwin':
+	CINDERSRC += Split('ImageTargetFileQuartz.cpp UrlImplCocoa.mm ' + \
+				 'CaptureImplQtKit.mm ImageSourceFileQuartz.cpp')
+elif platform == 'posix':
+	CINDERSRC += ['UrlImplCurl.cpp']
+
+CINDERSRC = ['../src/cinder/' + s for s in CINDERSRC]
+
+CINDERSRC_PARAMS = ['Params.cpp']
+CINDERSRC_PARAMS = ['../src/cinder/params/' + s for s in CINDERSRC_PARAMS]
+
+CINDERSRC_IP = Split('Blend.cpp EdgeDetect.cpp Fill.cpp Flip.cpp Grayscale.cpp ' + \
+		'Hdr.cpp Premultiply.cpp Resize.cpp Threshold.cpp Trim.cpp')
+CINDERSRC_IP = ['../src/cinder/ip/' + s for s in CINDERSRC_IP]
+
+CINDERSRC_AUDIO = Split('CocoaCaConverter.cpp FftProcessor.cpp ' + \
+		'FftProcessorImplAccelerate.cpp Input.cpp InputImplAudioUnit.cpp Io.cpp ' + \
+		'Output.cpp OutputImplAudioUnit.cpp PCMBuffer.cpp SourceFile.cpp ')
+CINDERSRC_AUDIO = ['../src/cinder/audio/' + s for s in CINDERSRC_AUDIO]
+
+CINDERSRC_COCOA = Split('CinderCocoa.mm')
+CINDERSRC_COCOA = ['../src/cinder/cocoa/' + s for s in CINDERSRC_COCOA]
+
+CINDERSRC_JSON = Split('json_reader.cpp json_value.cpp json_writer.cpp')
+CINDERSRC_JSON = ['../src/jsoncpp/' + s for s in CINDERSRC_JSON]
+
+CINDERSRC_QTIME = Split('QuickTime.cpp QuickTimeUtils.cpp MovieWriter.cpp')
+CINDERSRC_QTIME = ['../src/cinder/qtime/' + s for s in CINDERSRC_QTIME]
+
+CINDERSRC_SVG = Split('Svg.cpp')
+CINDERSRC_SVG = ['../src/cinder/svg/' + s for s in CINDERSRC_SVG]
+
+CINDERSRC_GL = Split('DisplayList.cpp Fbo.cpp GLee.c GlslProg.cpp Light.cpp ' + \
+		'Material.cpp StereoAutoFocuser.cpp Texture.cpp TextureFont.cpp ' + \
+		'TileRender.cpp Vbo.cpp gl.cpp')
+CINDERSRC_GL = ['../src/cinder/gl/' + s for s in CINDERSRC_GL]
+
+CINDERSRC_APP = Split('App.cpp AppBasic.cpp ' + \
+		'KeyEvent.cpp Renderer.cpp Window.cpp')
+if platform == 'darwin':
+		CINDERSRC_APP += Split('AppImplCocoaBasic.mm ' + \
+				'AppImplCocoaRendererGl.mm AppImplCocoaRendererQuartz.mm ' + \
+				'CinderView.mm')
+elif platform == 'posix':
+		CINDERSRC_APP += Split('AppImplLinux.cpp AppImplLinuxBasic.cpp ' + \
+				'AppImplLinuxRendererGl.cpp')
+CINDERSRC_APP = ['../src/cinder/app/' + s for s in CINDERSRC_APP]
+
+ANTTWEAKBARSRC = Split('LoadOGL.cpp TwBar.cpp TwColors.cpp TwFonts.cpp ' + \
+					'TwMgr.cpp TwOpenGL.cpp TwPrecomp.cpp')
+ANTTWEAKBARSRC = ['../src/AntTweakBar/' + s for s in ANTTWEAKBARSRC]
+
+LIBTESS2SRC = Split('bucketalloc.c dict.c geom.c mesh.c priorityq.c ' + \
+		'sweep.c tess.c')
+LIBTESS2SRC = ['../src/libtess2/' + s for s in LIBTESS2SRC]
+
+CINDER_SOURCES = CINDERSRC + CINDERSRC_PARAMS + \
+		CINDERSRC_IP + CINDERSRC_GL + ANTTWEAKBARSRC + CINDERSRC_JSON + \
+		CINDERSRC_SVG + LIBTESS2SRC + CINDERSRC_APP
+
+if platform == 'darwin':
+	CINDER_SOURCES += CINDERSRC_AUDIO + CINDERSRC_COCOA + CINDERSRC_QTIME
+
+INCLUDES = ['../include',
+		'../boost',
+		'../include/rapidxml',
+		'../include/cinder/app',
+		'../src/AntTweakBar',
+		'../src/libtess2']
+
+CFLAGS = ' -fmessage-length=0 -Wno-trigraphs ' + \
+		' -Wno-missing-field-initializers -Wreturn-type ' + \
+		' -Wno-missing-prototypes -Wformat -Wno-missing-braces -Wparentheses ' + \
+		' -Wswitch -Wno-unused-function -Wno-unused-label ' + \
+		' -Wno-unused-parameter -Wunused-variable -Wunused-value ' + \
+		' -Wno-empty-body -Wno-uninitialized -Wno-unknown-pragmas -Wno-shadow ' + \
+		' -Wno-four-char-constants -Wno-conversion -Wno-shorten-64-to-32 ' + \
+		' -Wpointer-sign -Wno-newline-eof -fasm-blocks -ffast-math ' + \
+		' -Wdeprecated-declarations -Wno-sign-conversion '
+
+LINKFLAGS = ' -dead_strip '
+
+if platform == 'darwin':
+	env['CC'] = 'clang'
+	env['CXX'] = 'clang++'
+	CFLAGS += ' -arch i386 -mmacosx-version-min=10.7 ' + \
+		' -fpascal-strings -fasm-blocks '
+	LINKFLAGS += ' -arch i386 '
+
+if DEBUG:
+	if platform == 'darwin':
+		CFLAGS += '-g -O0 '
+	else:
+		CFLAGS += '-ggdb2 -O0 '
+else:
+	CFLAGS += '-g0 -O3 '
+
+CCFLAGS = CFLAGS + ' -x c++ -fvisibility-inlines-hidden -std=c++11 ' + \
+		' -stdlib=libc++ -Wno-non-virtual-dtor -Wno-overloaded-virtual ' + \
+		' -Wno-exit-time-destructors -Wno-c++11-extensions -Winvalid-offsetof '
+
+CPPPATH = ['/usr/include']
+
+CPPPATH += INCLUDES
+
+env.Append(CPPPATH = CPPPATH)
+env.Append(CCFLAGS = Split(CCFLAGS))
+env.Append(LINKFLAGS = Split(LINKFLAGS))
+
+if platform == 'darwin':
+	CCFLAGS_OBJC = CFLAGS + ' -x objective-c++ -fvisibility-inlines-hidden ' + \
+		'-std=c++11 -stdlib=libc++ -Wno-implicit-atomic-properties ' + \
+		'-Wno-receiver-is-weak -Wno-non-virtual-dtor -Wno-overloaded-virtual ' + \
+		'-Wno-exit-time-destructors -Wno-selector -Wno-strict-selector-match ' + \
+		'-Wno-undeclared-selector -Wno-deprecated-implementations -Wno-arc-abi ' + \
+		'-Wno-c++11-extensions -Wprotocol -Winvalid-offsetof ' + \
+		'"-DIBOutlet=__attribute__((iboutlet))" ' + \
+		'"-DIBOutletCollection(ClassName)=__attribute__((iboutletcollection(ClassName)))" ' + \
+		'"-DIBAction=void)__attribute__((ibaction)" '
+
+	env.Append(FRAMEWORKS = Split('Accelerate AudioToolbox AudioUnit CoreAudio ' + \
+		'ApplicationServices QuickTime QTKit CoreVideo Carbon OpenGl Cocoa ' + \
+		'AppKit CoreData Foundation CoreServices '))
+
+	# change compile flags for C and ObjC files
+	for i in range(len(CINDER_SOURCES)):
+		if (CINDER_SOURCES[i].endswith('.mm') or
+			basename(CINDER_SOURCES[i]) in ['App.cpp', 'Capture.cpp', 'QuickTime.cpp',
+				'Utilities.cpp', 'AppBasic.cpp', 'Display.cpp', 'Font.cpp', 'Renderer.cpp',
+				'TwMgr.cpp', 'TwPrecomp.cpp', 'LoadOGL.cpp', 'TwFonts.cpp', 'TwColors.cpp',
+				'TwOpenGL.cpp', 'TwBar.cpp', 'System.cpp', 'ImageSourceFileQuartz.cpp',
+				'MovieWriter.cpp', 'Clipboard.cpp', 'Window.cpp']):
+				CINDER_SOURCES[i] = env.Object(CINDER_SOURCES[i], CCFLAGS = CCFLAGS_OBJC)
+		elif CINDER_SOURCES[i].endswith('.c'):
+				CINDER_SOURCES[i] = env.Object(CINDER_SOURCES[i], CCFLAGS = CFLAGS)
+
+def CheckPKGConfig(context, version):
+	context.Message( 'Checking for pkg-config... ' )
+	ret = context.TryAction('pkg-config --atleast-pkgconfig-version=%s' % version)[0]
+	context.Result(ret)
+	return ret
+
+def CheckPKG(context, name):
+	context.Message('Checking for %s... ' % name)
+	ret = context.TryAction("pkg-config --exists '%s'" % name)[0]
+	context.Result(ret)
+	return ret
+
+# configure on posix with pkg-config
+if (not GetOption('clean')) and (platform == 'posix'):
+	conf = env.Configure(custom_tests = { 'CheckPKGConfig' : CheckPKGConfig,
+											'CheckPKG' : CheckPKG })
+	if not conf.CheckPKGConfig('0.15'):
+		print 'ERROR: pkg-config not found.'
+		Exit(1)
+
+	LIBS = ['x11', 'gl', 'cairo', 'libcurl', 'zlib'] # TODO: no pkg-config boost
+
+	for lib in LIBS:
+		if not conf.CheckPKG(lib):
+			print "ERROR: '%s' must be installed!" % (lib)
+			Exit(1)
+		else:
+			env.ParseConfig('pkg-config --cflags --libs %s' % (lib))
+
+	env = conf.Finish()
+
+# build the library
+env.StaticLibrary(source = CINDER_SOURCES, target = TARGET)
+
