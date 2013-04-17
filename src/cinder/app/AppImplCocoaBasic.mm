@@ -321,7 +321,12 @@
 
 - (void)quit
 {
-	[NSApp terminate:self];
+	// in certain scenarios self seems to have be deallocated inside terminate:
+	// so we call this here and then pass nil to terminate: instead
+	if( ! mApp->privateShouldQuit() )
+		return;
+
+	[NSApp terminate:nil];
 }
 
 - (float)getFrameRate
@@ -413,6 +418,7 @@
 	r.origin.y -= sizeDelta.y;
 	[mWin setFrame:r display:YES];
 
+	mSize = size;
 }
 
 - (cinder::Vec2i)getPos
@@ -677,8 +683,15 @@
 	winImpl->mResizable = winFormat.isResizable();
 	winImpl->mBorderless = winFormat.isBorderless();
 	winImpl->mAlwaysOnTop = winFormat.isAlwaysOnTop();
-	int offsetX = ( winImpl->mDisplay->getWidth() - winFormat.getSize().x ) / 2;
-	int offsetY = ( winImpl->mDisplay->getHeight() - winFormat.getSize().y ) / 2;	
+	int offsetX, offsetY;
+	if( ! winFormat.isPosSpecified() ) {
+		offsetX = ( winImpl->mDisplay->getWidth() - winFormat.getSize().x ) / 2;
+		offsetY = ( winImpl->mDisplay->getHeight() - winFormat.getSize().y ) / 2;
+	}
+	else {
+		offsetX = winFormat.getPos().x;
+		offsetY = cinder::Display::getMainDisplay()->getHeight() - winFormat.getPos().y - winFormat.getSize().y;
+	}
 	NSRect winRect = NSMakeRect( offsetX, offsetY, winFormat.getSize().x, winFormat.getSize().y );
 	unsigned int styleMask;
 	
@@ -700,6 +713,10 @@
 	winImpl->mPos = ci::Vec2i( contentRect.origin.x, cinder::Display::getMainDisplay()->getHeight() - [winImpl->mWin frame].origin.y - contentRect.size.height );
 
 	[winImpl->mWin setLevel:(winImpl->mAlwaysOnTop)?NSScreenSaverWindowLevel:NSNormalWindowLevel];
+
+	// title
+	if( ! winFormat.getTitle().empty() )
+		[winImpl->mWin setTitle:[NSString stringWithUTF8String:winFormat.getTitle().c_str()]];
 
 	if( winFormat.isFullScreenButtonEnabled() )
 		[winImpl->mWin setCollectionBehavior:NSWindowCollectionBehaviorFullScreenPrimary];

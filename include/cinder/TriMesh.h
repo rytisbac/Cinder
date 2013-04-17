@@ -105,7 +105,7 @@ class TriMesh {
 	void		appendTriangle( size_t v0, size_t v1, size_t v2 )
 	{ mIndices.push_back( v0 ); mIndices.push_back( v1 ); mIndices.push_back( v2 ); }
 	//! Appends \a num vertices to the TriMesh pointed to by \a indices
-	void		appendIndices( uint32_t *indices, size_t num );
+	void		appendIndices( const uint32_t *indices, size_t num );
 
 	//! Returns the total number of indices contained by a TriMesh. This should be number of triangles/3
 	size_t		getNumIndices() const { return mIndices.size(); }
@@ -147,9 +147,9 @@ class TriMesh {
 	//! Calculates the bounding box of all vertices as transformed by \a transform
 	AxisAlignedBox3f	calcBoundingBox( const Matrix44f &transform ) const;
 
-	//! This allows you read a TriMesh in from a data file, for instance an .obj file. At present .obj and .dat files are supported
+	//! This reads a TriMesh in from a data file that was serialized using the write() function.
 	void		read( DataSourceRef in );
-	//! This allows to you write a mesh out to a data file. At present .obj and .dat files are supported.
+	//! This writes a TriMesh to a proprietary file format to be read using the read() function.
 	void		write( DataTargetRef out ) const;
 
 	//! Adds or replaces normals by calculating them from the vertices and faces.
@@ -196,7 +196,7 @@ class TriMesh2d {
 	void		appendTriangle( size_t v0, size_t v1, size_t v2 )
 	{ mIndices.push_back( v0 ); mIndices.push_back( v1 ); mIndices.push_back( v2 ); }
 	//! Appends \a num vertices to the TriMesh2d pointed to by \a indices
-	void		appendIndices( uint32_t *indices, size_t num );
+	void		appendIndices( const uint32_t *indices, size_t num );
 	
 	//! Returns the total number of indices contained by a TriMesh. This should be number of triangles/3
 	size_t		getNumIndices() const { return mIndices.size(); }
