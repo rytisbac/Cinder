@@ -82,9 +82,12 @@ LIBTESS2SRC = Split('bucketalloc.c dict.c geom.c mesh.c priorityq.c ' + \
 		'sweep.c tess.c')
 LIBTESS2SRC = ['../src/libtess2/' + s for s in LIBTESS2SRC]
 
+LINEBREAKSRC = Split('linebreak.c linebreakdata.c linebreakdef.c')
+LINEBREAKSRC = ['../src/linebreak/' + s for s in LINEBREAKSRC]
+
 CINDER_SOURCES = CINDERSRC + CINDERSRC_PARAMS + \
 		CINDERSRC_IP + CINDERSRC_GL + ANTTWEAKBARSRC + CINDERSRC_JSON + \
-		CINDERSRC_SVG + LIBTESS2SRC + CINDERSRC_APP
+		CINDERSRC_SVG + LIBTESS2SRC + LINEBREAKSRC + CINDERSRC_APP
 
 if platform == 'darwin':
 	CINDER_SOURCES += CINDERSRC_AUDIO + CINDERSRC_COCOA + CINDERSRC_QTIME
