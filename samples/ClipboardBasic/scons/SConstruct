@@ -1,0 +1,6 @@
+env = Environment()
+
+env['APP_TARGET'] = 'ClipboardBasicApp'
+env['APP_SOURCES'] = ['ClipboardBasicApp.cpp']
+
+SConscript('../../../scons/SConscript', exports = 'env')

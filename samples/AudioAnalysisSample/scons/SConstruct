@@ -1,0 +1,7 @@
+env = Environment()
+
+env['APP_TARGET'] = 'AudioAnalysisSampleApp'
+env['APP_SOURCES'] = ['AudioAnalysisSampleApp.cpp']
+env['RESOURCES'] = ['drums.mp3', 'guitar.mp3']
+
+SConscript('../../../scons/SConscript', exports = 'env')

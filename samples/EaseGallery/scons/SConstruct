@@ -1,0 +1,6 @@
+env = Environment()
+
+env['APP_TARGET'] = 'EaseGalleryApp'
+env['APP_SOURCES'] = ['EaseGalleryApp.cpp']
+
+SConscript('../../../scons/SConscript', exports = 'env')

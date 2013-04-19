@@ -1,0 +1,8 @@
+env = Environment()
+
+env['APP_TARGET'] = 'BSplineApp'
+env['APP_SOURCES'] = ['BSplineApp.cpp']
+
+env = SConscript('../../../blocks/Cairo/scons/SConscript', exports = 'env')
+
+SConscript('../../../scons/SConscript', exports = 'env')

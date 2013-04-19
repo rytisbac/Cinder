@@ -1,0 +1,7 @@
+env = Environment()
+
+env['APP_TARGET'] = 'ConvexHullApp'
+env['APP_SOURCES'] = ['ConvexHullApp.cpp']
+
+SConscript('../../../scons/SConscript', exports = 'env')
+

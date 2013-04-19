@@ -1,0 +1,9 @@
+env = Environment()
+
+env['APP_TARGET'] = 'LocationManagerApp'
+env['APP_SOURCES'] = ['LocationManagerApp.cpp']
+env['RESOURCES'] = ['earth.jpg']
+
+env = SConscript('../../../blocks/LocationManager/scons/SConscript', exports = 'env')
+
+SConscript('../../../scons/SConscript', exports = 'env')

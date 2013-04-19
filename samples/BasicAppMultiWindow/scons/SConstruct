@@ -1,0 +1,6 @@
+env = Environment()
+
+env['APP_TARGET'] = 'BasicAppMultiWindowApp'
+env['APP_SOURCES'] = ['BasicAppMultiWindowApp.cpp']
+
+SConscript('../../../scons/SConscript', exports = 'env')

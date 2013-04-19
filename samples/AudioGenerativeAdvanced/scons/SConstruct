@@ -1,0 +1,6 @@
+env = Environment()
+
+env['APP_TARGET'] = 'AudioGenerativeApp'
+env['APP_SOURCES'] = ['AudioGenerativeAdvancedApp.cpp']
+
+SConscript('../../../scons/SConscript', exports = 'env')

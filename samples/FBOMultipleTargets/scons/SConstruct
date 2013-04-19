@@ -1,0 +1,7 @@
+env = Environment()
+
+env['APP_TARGET'] = 'FBOMultipleTargetsApp'
+env['APP_SOURCES'] = ['FBOMultipleTargetsApp.cpp']
+env['RESOURCES'] = ['multipleOut_frag.glsl', 'passThru_vert.glsl']
+
+SConscript('../../../scons/SConscript', exports = 'env')

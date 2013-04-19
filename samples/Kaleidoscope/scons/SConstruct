@@ -1,0 +1,8 @@
+env = Environment()
+
+
+env['APP_TARGET'] = 'InstascopeApp'
+env['APP_SOURCES'] = ['InstagramStream.cpp', 'InstascopeApp.cpp', 'TextRibbon.cpp', 'TrianglePiece.cpp']
+env['RESOURCES' ] = ['Asap-Regular.ttf', 'Kreon-Bold.ttf']
+
+SConscript('../../../scons/SConscript', exports = 'env')

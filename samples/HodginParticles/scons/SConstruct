@@ -1,0 +1,7 @@
+env = Environment()
+
+env['APP_TARGET'] = 'HodginParticlesApp'
+env['APP_SOURCES'] = ['HodginParticlesApp.cpp', 'Emitter.cpp', 'Particle.cpp']
+env['RESOURCES'] = ['emitter.png', 'particle.png']
+
+SConscript('../../../scons/SConscript', exports = 'env')

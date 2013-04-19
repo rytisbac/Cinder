@@ -1,0 +1,6 @@
+env = Environment()
+
+env['APP_TARGET'] = 'ImageFileBasicApp'
+env['APP_SOURCES'] = ['ImageFileBasicApp.cpp']
+
+SConscript('../../../scons/SConscript', exports = 'env')

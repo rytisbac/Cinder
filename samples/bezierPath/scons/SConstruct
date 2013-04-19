@@ -1,0 +1,7 @@
+env = Environment()
+
+env['APP_TARGET'] = 'bezierPathApp'
+env['APP_SOURCES'] = ['bezierPathApp.cpp']
+
+SConscript('../../../scons/SConscript', exports = 'env')
+

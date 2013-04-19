@@ -1,0 +1,15 @@
+import os
+
+Import('env')
+
+_INCLUDES = [Dir('../src/').abspath]
+
+_SOURCES = ['LocationManager.cpp']
+env.Append(COMPILE_AS_MM = ['LocationManager.cpp'])
+_SOURCES = [File('../src/cinder/' + s).abspath for s in _SOURCES]
+
+env.Append(APP_SOURCES = _SOURCES)
+env.Append(CPPPATH = _INCLUDES)
+env.Append(FRAMEWORKS = ['CoreLocation'])
+
+Return('env')

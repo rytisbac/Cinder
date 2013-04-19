@@ -1,0 +1,7 @@
+env = Environment()
+
+env['APP_TARGET'] = 'FrustumCullingReduxApp'
+env['APP_SOURCES'] = ['FrustumCullingReduxApp.cpp', 'CullableObject.cpp']
+env['ASSETS'] = ['models', 'shaders']
+
+SConscript('../../../scons/SConscript', exports = 'env')

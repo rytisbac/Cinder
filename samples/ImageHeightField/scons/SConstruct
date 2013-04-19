@@ -1,0 +1,6 @@
+env = Environment()
+
+env['APP_TARGET'] = 'ImageHeightFieldApp'
+env['APP_SOURCES'] = ['ImageHeightFieldApp.cpp']
+
+SConscript('../../../scons/SConscript', exports = 'env')

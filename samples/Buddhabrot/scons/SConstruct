@@ -1,0 +1,7 @@
+env = Environment()
+
+env['APP_TARGET'] = 'Buddhabrot'
+env['APP_SOURCES'] = ['Buddhabrot.cpp']
+env['PLIST'] = '../xcode/Buddhabrot-Info.plist'
+
+SConscript('../../../scons/SConscript', exports = 'env')

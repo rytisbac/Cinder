@@ -1,0 +1,21 @@
+Import('env')
+
+_INCLUDES = [Dir('../include').abspath]
+if env['PLATFORM'] == 'darwin':
+	_INCLUDES += [Dir('../include/macosx').abspath]
+
+_SOURCES = ['Cairo.cpp']
+_SOURCES = [File('../src/' + s).abspath for s in _SOURCES]
+
+_LIBS = ['libcairo.a', 'libpixman-1.a', 'libpng14.a']
+if env['PLATFORM'] == 'darwin':
+	_LIBS = [Dir('../lib/macosx/').abspath + '/' + s for s in _LIBS]
+else:
+	_LIBS = []
+_LIBS = [File(s) for s in _LIBS]
+
+env.Append(APP_SOURCES = _SOURCES)
+env.Append(CPPPATH = _INCLUDES)
+env.Append(LIBS = _LIBS)
+
+Return('env')

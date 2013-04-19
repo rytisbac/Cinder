@@ -1,0 +1,8 @@
+env = Environment()
+
+env['APP_TARGET'] = 'FontSampleApp'
+env['APP_SOURCES'] = ['FontSampleApp.cpp']
+
+env = SConscript('../../../blocks/Cairo/scons/SConscript', exports = 'env')
+
+SConscript('../../../scons/SConscript', exports = 'env')

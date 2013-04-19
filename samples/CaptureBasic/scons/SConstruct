@@ -1,0 +1,6 @@
+env = Environment()
+
+env['APP_TARGET'] = 'CaptureBasicApp'
+env['APP_SOURCES'] = ['CaptureBasicApp.cpp']
+
+SConscript('../../../scons/SConscript', exports = 'env')

@@ -1,0 +1,6 @@
+env = Environment()
+
+env['APP_TARGET'] = 'FlickrTestMultithreadedApp'
+env['APP_SOURCES'] = ['FlickrTestMultithreadedApp.cpp']
+
+SConscript('../../../scons/SConscript', exports = 'env')

@@ -1,0 +1,6 @@
+env = Environment()
+
+env['APP_TARGET'] = 'FrustumCullingApp'
+env['APP_SOURCES'] = ['FrustumCullingApp.cpp', 'InfoPanel.cpp']
+
+SConscript('../../../scons/SConscript', exports = 'env')

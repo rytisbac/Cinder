@@ -110,8 +110,12 @@ if platform == 'darwin':
 		'"-DIBOutlet=__attribute__((iboutlet))" ' + \
 		'"-DIBOutletCollection(ClassName)=__attribute__((iboutletcollection(ClassName)))" ' + \
 		'"-DIBAction=void)__attribute__((ibaction)" '
+	if 'COMPILE_AS_MM' not in env:
+		env['COMPILE_AS_MM'] = []
+	from os.path import basename
 	for i in range(len(SOURCES)):
-		if SOURCES[i].endswith('.mm') or SOURCES[i].endswith('.m'):
+		if SOURCES[i].endswith('.mm') or SOURCES[i].endswith('.m') or \
+			(basename(SOURCES[i]) in env['COMPILE_AS_MM']):
 				SOURCES[i] = env.Object(SOURCES[i], CCFLAGS = CCFLAGS_OBJC)
 
 # build the application
