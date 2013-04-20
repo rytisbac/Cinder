@@ -1,0 +1,6 @@
+env = Environment()
+
+env['APP_TARGET'] = 'PolygonBooleanApp'
+env['APP_SOURCES'] = ['PolygonBooleanApp.cpp']
+
+SConscript('../../../scons/SConscript', exports = 'env')

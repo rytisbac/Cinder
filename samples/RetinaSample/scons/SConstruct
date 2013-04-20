@@ -1,0 +1,7 @@
+env = Environment()
+
+env['APP_TARGET'] = 'RetinaSampleApp'
+env['APP_SOURCES'] = ['RetinaSampleApp.cpp']
+env['RESOURCES'] = ['CinderAppIcon.png']
+
+SConscript('../../../scons/SConscript', exports = 'env')

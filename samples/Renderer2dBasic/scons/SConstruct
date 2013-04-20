@@ -1,0 +1,14 @@
+env = Environment()
+
+env['APP_TARGET'] = 'Renderer2dApp'
+env['APP_SOURCES'] = ['Renderer2dApp.cpp']
+env['RESOURCES'] = ['../../data/cinder_logo_alpha.png']
+
+# moving ../../data/cinder_logo_alpha.png to resources
+# SConscript is expecting all resources to be in ../resources
+if env['PLATFORM'] == 'darwin':
+	fout = env['APP_TARGET'] + '.app/Contents/Resources/'
+	fin = env['APP_TARGET'] + '.app/data/cinder_logo_alpha.png'
+	Command(fout, fin, Move(fout, fin))
+
+SConscript('../../../scons/SConscript', exports = 'env')

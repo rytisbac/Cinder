@@ -1,0 +1,19 @@
+env = Environment()
+
+env['APP_TARGET'] = 'NormalMappingApp'
+env['APP_SOURCES'] = ['NormalMappingApp.cpp']
+env['RESOURCES'] = ['diffuseMap_3.jpg', 'normalMap_3.png',
+		'specStrengthMap_3.jpg', '../shaders/normalMap.frag',
+		'../shaders/normalMap.vert']
+
+# moving ../shaders/* to Resources
+# SConscript is expecting all resources to be in ../resources
+if env['PLATFORM'] == 'darwin':
+	fout = env['APP_TARGET'] + '.app/Contents/Resources/normalMap.frag'
+	fin = env['APP_TARGET'] + '.app/Contents/shaders/normalMap.frag'
+	Command(fout, fin, Move(fout, fin))
+	fout = env['APP_TARGET'] + '.app/Contents/Resources/normalMap.vert'
+	fin = env['APP_TARGET'] + '.app/Contents/shaders/normalMap.vert'
+	Command(fout, fin, Move(fout, fin))
+
+SConscript('../../../scons/SConscript', exports = 'env')

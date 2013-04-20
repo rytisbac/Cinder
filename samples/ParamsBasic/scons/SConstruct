@@ -1,0 +1,6 @@
+env = Environment()
+
+env['APP_TARGET'] = 'ParamsBasicApp'
+env['APP_SOURCES'] = ['ParamsBasicApp.cpp']
+
+SConscript('../../../scons/SConscript', exports = 'env')

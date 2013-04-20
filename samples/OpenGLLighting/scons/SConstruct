@@ -1,0 +1,6 @@
+env = Environment()
+
+env['APP_TARGET'] = 'OpenGLLightingApp'
+env['APP_SOURCES'] = ['OpenGLLightingApp.cpp', 'InfoPanel.cpp']
+
+SConscript('../../../scons/SConscript', exports = 'env')

@@ -1,0 +1,7 @@
+env = Environment()
+
+env['APP_TARGET'] = 'MultiTouchApp'
+env['APP_SOURCES'] = ['MultiTouchApp.cpp']
+env['PLIST'] = '../xcode/MultiTouch_OSX-Info.plist'
+
+SConscript('../../../scons/SConscript', exports = 'env')

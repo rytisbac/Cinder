@@ -1,0 +1,7 @@
+env = Environment()
+
+env['APP_TARGET'] = 'Picking3DApp'
+env['APP_SOURCES'] = ['Picking3DApp.cpp']
+env['RESOURCES'] = ['ducky.msh', 'ducky.png', 'phong_frag.glsl', 'phong_vert.glsl']
+
+SConscript('../../../scons/SConscript', exports = 'env')

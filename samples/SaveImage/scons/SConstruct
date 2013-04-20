@@ -1,0 +1,6 @@
+env = Environment()
+
+env['APP_TARGET'] = 'SaveImageApp'
+env['APP_SOURCES'] = ['SaveImageApp.cpp']
+
+SConscript('../../../scons/SConscript', exports = 'env')

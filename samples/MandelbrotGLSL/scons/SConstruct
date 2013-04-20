@@ -1,0 +1,8 @@
+env = Environment()
+
+
+env['APP_TARGET'] = 'MandelbrotGLSLApp'
+env['APP_SOURCES'] = ['MandelbrotGLSLApp.cpp']
+env['RESOURCES' ] = ['brot_frag.glsl', 'colors.png', 'passThru_vert.glsl']
+
+SConscript('../../../scons/SConscript', exports = 'env')

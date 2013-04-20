@@ -1,0 +1,7 @@
+env = Environment()
+
+env['APP_TARGET'] = 'StereoscopicRenderingApp'
+env['APP_SOURCES'] = ['StereoscopicRenderingApp.cpp']
+env['ASSETS'] = ['models/*', 'shaders/*']
+
+SConscript('../../../scons/SConscript', exports = 'env')

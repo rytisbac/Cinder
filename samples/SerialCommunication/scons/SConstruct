@@ -1,0 +1,6 @@
+env = Environment()
+
+env['APP_TARGET'] = 'SerialCommunicationApp'
+env['APP_SOURCES'] = ['SerialCommunicationApp.cpp']
+
+SConscript('../../../scons/SConscript', exports = 'env')
