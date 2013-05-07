@@ -1,0 +1,6 @@
+env = Environment()
+
+env['APP_TARGET'] = 'flickrTest'
+env['APP_SOURCES'] = ['flickrTest.cpp']
+
+SConscript('../../../scons/SConscript', exports = 'env')

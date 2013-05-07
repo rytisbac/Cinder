@@ -1,0 +1,6 @@
+env = Environment()
+
+env['APP_TARGET'] = 'TextureFontApp'
+env['APP_SOURCES'] = ['TextureFontApp.cpp']
+
+SConscript('../../../scons/SConscript', exports = 'env')

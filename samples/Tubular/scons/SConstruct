@@ -1,0 +1,6 @@
+env = Environment()
+
+env['APP_TARGET'] = 'TubularApp'
+env['APP_SOURCES'] = ['TubularApp.cpp', 'Tube.cpp']
+
+SConscript('../../../scons/SConscript', exports = 'env')

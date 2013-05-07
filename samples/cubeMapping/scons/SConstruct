@@ -1,0 +1,16 @@
+env = Environment()
+
+env['APP_TARGET'] = 'CubeMappingApp'
+env['APP_SOURCES'] = ['CubeMappingApp.cpp', 'CubeMap.cpp']
+env['RESOURCES'] = ['../shaders/CubeMapping_frag.glsl', '../shaders/CubeMapping_vert.glsl', '../textures/*']
+
+# SConscript is expecting all resources to be in ../resources
+if env['PLATFORM'] == 'darwin':
+	import os
+	for folder in ['shaders', 'textures']:
+		files = Glob(env['APP_TARGET'] + '.app/Contents/' + folder + '/*', strings = True)
+		for fin in files:
+			fout = env['APP_TARGET'] + '.app/Contents/Resources/' + os.path.basename( fin )
+			Command(fout, fin, Move(fout, fin))
+
+SConscript('../../../scons/SConscript', exports = 'env')

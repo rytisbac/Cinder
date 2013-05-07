@@ -1,0 +1,7 @@
+env = Environment()
+
+env['APP_TARGET'] = 'QuaternionAccumApp'
+env['APP_SOURCES'] = ['QuaternionAccumApp.cpp']
+env['RESOURCES'] = ['Plane.png', 'Stripe.png']
+
+SConscript('../../../scons/SConscript', exports = 'env')

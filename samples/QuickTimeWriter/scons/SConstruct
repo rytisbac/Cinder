@@ -1,0 +1,7 @@
+env = Environment()
+
+env['APP_TARGET'] = 'QuickTimeWriterApp'
+env['APP_SOURCES'] = ['QuickTimeWriterApp.cpp']
+env['RESOURCES'] = ['lava.jpg']
+
+SConscript('../../../scons/SConscript', exports = 'env')

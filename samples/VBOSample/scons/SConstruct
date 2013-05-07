@@ -1,0 +1,14 @@
+env = Environment()
+
+env['APP_TARGET'] = 'VBOSampleApp'
+env['APP_SOURCES'] = ['VBOSampleApp.cpp']
+env['RESOURCES'] = ['../../data/cinder_logo.png']
+
+# moving ../../data/cinder_logo.png to resources
+# SConscript is expecting all resources to be in ../resources
+if env['PLATFORM'] == 'darwin':
+	fout = env['APP_TARGET'] + '.app/Contents/Resources/'
+	fin = env['APP_TARGET'] + '.app/data/cinder_logo.png'
+	Command(fout, fin, Move(fout, fin))
+
+SConscript('../../../scons/SConscript', exports = 'env')

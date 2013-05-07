@@ -1,0 +1,7 @@
+env = Environment()
+
+env['APP_TARGET'] = 'TextTestApp'
+env['APP_SOURCES'] = ['TextTestApp.cpp']
+env['RESOURCES'] = ['icon.png', 'Saint-Andrews Queen.ttf']
+
+SConscript('../../../scons/SConscript', exports = 'env')

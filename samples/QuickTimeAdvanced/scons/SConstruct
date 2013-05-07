@@ -1,0 +1,6 @@
+env = Environment()
+
+env['APP_TARGET'] = 'QTimeAdvApp'
+env['APP_SOURCES'] = ['QTimeAdvApp.cpp']
+
+SConscript('../../../scons/SConscript', exports = 'env')

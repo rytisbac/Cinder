@@ -1,0 +1,7 @@
+env = Environment()
+
+env['APP_TARGET'] = 'WisteriaApp'
+env['APP_SOURCES'] = ['WisteriaApp.cpp', 'Branch.cpp']
+
+env = SConscript('../../../blocks/Cairo/scons/SConscript', exports = 'env')
+SConscript('../../../scons/SConscript', exports = 'env')

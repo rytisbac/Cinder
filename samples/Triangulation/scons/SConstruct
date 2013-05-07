@@ -1,0 +1,6 @@
+env = Environment()
+
+env['APP_TARGET'] = 'TriangulationApp'
+env['APP_SOURCES'] = ['TriangulationApp.cpp']
+
+SConscript('../../../scons/SConscript', exports = 'env')

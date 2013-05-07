@@ -1,0 +1,6 @@
+env = Environment()
+
+env['APP_TARGET'] = 'QuickTimeBasicApp'
+env['APP_SOURCES'] = ['QuickTimeBasicApp.cpp']
+
+SConscript('../../../scons/SConscript', exports = 'env')
