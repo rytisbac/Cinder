@@ -79,6 +79,10 @@ if platform == 'darwin':
 	else:
 		ICON = '#../resources/' + env['ICON']
 
+	AddOption('--bundle', action='store_true', help='Build OSX bundle')
+	if GetOption('bundle'):
+		LINKFLAGS += '-bundle '
+
 elif platform == 'posix':
 	CFLAGS += '-pthread '
 
@@ -162,18 +166,25 @@ if platform == 'darwin':
 	else:
 		PLIST = '#' + env['PLIST']
 		
-	env.Alias('app', env.MakeBundle(TARGET + '.app',
+	if GetOption('bundle'):
+		bundle_name = TARGET + '.bundle'
+		typecode = 'BNDL'
+	else:
+		bundle_name = TARGET + '.app'
+		typecode = 'APPL'
+
+	env.Alias('app', env.MakeBundle(bundle_name,
 		TARGET,
 		'key',
 		PLIST,
 		resources = RESOURCES + ASSETS,
-		typecode='APPL',
+		typecode = typecode,
 		icon_file = ICON,
 		subst_dict = {'\${EXECUTABLE_NAME}': TARGET[1:],
 						'\${PRODUCT_NAME}': TARGET[1:],
 						'\${ICON_FILE}': basename(ICON)}))
 
-	env.Clean(TARGET, TARGET + '.app')
+	env.Clean(TARGET, bundle_name)
 
 # run
 if platform == 'darwin':
