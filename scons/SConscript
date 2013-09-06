@@ -54,7 +54,8 @@ CFLAGS = ' -fmessage-length=0 -Wno-trigraphs ' + \
 		' -Wno-empty-body -Wno-uninitialized -Wno-unknown-pragmas -Wno-shadow ' + \
 		' -Wno-four-char-constants -Wno-conversion -Wno-shorten-64-to-32 ' + \
 		' -Wpointer-sign -Wno-newline-eof -fasm-blocks -ffast-math ' + \
-		' -Wdeprecated-declarations -Wno-sign-conversion '
+		' -Wdeprecated-declarations -Wno-sign-conversion ' +\
+		' -fstrict-aliasing '
 
 if DEBUG:
 	if platform == 'darwin':
@@ -71,7 +72,7 @@ if platform == 'darwin':
 	env['CXX'] = 'clang++'
 
 	CFLAGS += ' -arch i386 -mmacosx-version-min=10.7 ' + \
-		' -fpascal-strings -fasm-blocks '
+		' -fpascal-strings '
 	LINKFLAGS += ' -arch i386 -all_load '
 
 	if 'ICON' not in env:
