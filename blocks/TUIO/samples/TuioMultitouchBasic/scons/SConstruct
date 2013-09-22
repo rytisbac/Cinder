@@ -1,0 +1,9 @@
+env = Environment()
+
+env['APP_TARGET'] = 'TuioMultitouchBasicApp'
+env['APP_SOURCES'] = ['TuioMultitouchBasicApp.cpp']
+
+env = SConscript('../../../scons/SConscript', exports = 'env')
+
+SConscript('../../../../../scons/SConscript', exports = 'env')
+

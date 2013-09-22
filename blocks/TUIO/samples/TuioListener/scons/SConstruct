@@ -1,0 +1,9 @@
+env = Environment()
+
+env['APP_TARGET'] = 'TuioListenerApp'
+env['APP_SOURCES'] = ['TuioListenerApp.cpp']
+
+env = SConscript('../../../scons/SConscript', exports = 'env')
+
+SConscript('../../../../../scons/SConscript', exports = 'env')
+
