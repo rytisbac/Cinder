@@ -1,0 +1,9 @@
+env = Environment()
+
+env['APP_TARGET'] = 'OSCSenderApp'
+env['APP_SOURCES'] = ['OSCSenderApp.cpp']
+
+env = SConscript('../../../scons/SConscript', exports = 'env')
+
+SConscript('../../../../../scons/SConscript', exports = 'env')
+
