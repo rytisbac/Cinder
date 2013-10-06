@@ -1,0 +1,7 @@
+env = Environment()
+
+env['APP_TARGET'] = 'BezierPathIterationApp'
+env['APP_SOURCES'] = ['BezierPathIterationApp.cpp']
+env['ASSETS'] = ['black_type_logo.svg']
+
+SConscript('../../../scons/SConscript', exports = 'env')
