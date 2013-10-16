@@ -73,7 +73,7 @@ if platform == 'darwin':
 
 	CFLAGS += ' -arch i386 -mmacosx-version-min=10.7 ' + \
 		' -fpascal-strings '
-	LINKFLAGS += ' -arch i386 -all_load '
+	LINKFLAGS += ' -arch i386 -all_load -mmacosx-version-min=10.7 '
 
 	if 'ICON' not in env:
 		ICON = '../samples/BasicAppMultiWindow/resources/CinderApp.icns'
