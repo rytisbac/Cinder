@@ -24,10 +24,12 @@ ipch/
 
 # scons
 scons/libcinder*.a
+scons/cinder*.lib
 scons/*.pyc
 scons/config.log
 .sconsign.dblite
 *.o
+*.obj
 
 # doxygen generated files
 docs/html

@@ -24,13 +24,18 @@ CINDERSRC = Split('Area.cpp AxisAlignedBox.cpp Base64.cpp BSpline.cpp ' + \
 		'Text.cpp Timer.cpp Triangulate.cpp TriMesh.cpp Url.cpp Xml.cpp ' + \
 		'Capture.cpp Display.cpp Font.cpp ' + \
 		'Timeline.cpp TimelineItem.cpp Tween.cpp ' + \
-		'Utilities.cpp Clipboard.cpp ')
+		'Unicode.cpp Utilities.cpp Clipboard.cpp ')
 
 if platform == 'darwin':
 	CINDERSRC += Split('ImageTargetFileQuartz.cpp UrlImplCocoa.mm ' + \
 				 'CaptureImplQtKit.mm ImageSourceFileQuartz.cpp')
 elif platform == 'posix':
 	CINDERSRC += ['UrlImplCurl.cpp']
+elif platform == 'win32':
+	env['ENV']['INCLUDE'] = os.environ['INCLUDE']
+	env['ENV']['LIB'] = os.environ['LIB']
+	CINDERSRC += Split('CaptureImplDirectShow.cpp ImageSourceFileWic.cpp ' + \
+		'ImageSourcePng.cpp ImageTargetFileWic.cpp UrlImplWinInet.cpp ')
 
 CINDERSRC = ['../src/cinder/' + s for s in CINDERSRC]
 
@@ -44,6 +49,10 @@ CINDERSRC_IP = ['../src/cinder/ip/' + s for s in CINDERSRC_IP]
 CINDERSRC_AUDIO = Split('CocoaCaConverter.cpp FftProcessor.cpp ' + \
 		'FftProcessorImplAccelerate.cpp Input.cpp InputImplAudioUnit.cpp Io.cpp ' + \
 		'Output.cpp OutputImplAudioUnit.cpp PCMBuffer.cpp SourceFile.cpp ')
+if platform == 'win32':
+	CINDERSRC_AUDIO = Split('Io.cpp Output.cpp OutputImplXAudio.cpp ' + \
+			'PcmBuffer.cpp SourceFileWav.cpp SourceFileWindowsMedia.cpp')
+
 CINDERSRC_AUDIO = ['../src/cinder/audio/' + s for s in CINDERSRC_AUDIO]
 
 CINDERSRC_COCOA = Split('CinderCocoa.mm')
@@ -66,16 +75,32 @@ CINDERSRC_GL = ['../src/cinder/gl/' + s for s in CINDERSRC_GL]
 CINDERSRC_APP = Split('App.cpp AppBasic.cpp ' + \
 		'KeyEvent.cpp Renderer.cpp Window.cpp')
 if platform == 'darwin':
-		CINDERSRC_APP += Split('AppImplCocoaBasic.mm ' + \
-				'AppImplCocoaRendererGl.mm AppImplCocoaRendererQuartz.mm ' + \
-				'CinderView.mm')
+	CINDERSRC_APP += Split('AppImplCocoaBasic.mm ' + \
+			'AppImplCocoaRendererGl.mm AppImplCocoaRendererQuartz.mm ' + \
+			'CinderView.mm')
 elif platform == 'posix':
-		CINDERSRC_APP += Split('AppImplLinux.cpp AppImplLinuxBasic.cpp ' + \
-				'AppImplLinuxRendererGl.cpp')
+	CINDERSRC_APP += Split('AppImplLinux.cpp AppImplLinuxBasic.cpp ' + \
+			'AppImplLinuxRendererGl.cpp')
+elif platform == 'win32':
+	CINDERSRC_APP += Split('AppImplMsw.cpp AppImplMswBasic.cpp ' + \
+			'AppImplMswRendererDx.cpp AppImplMswRendererGdi.cpp ' + \
+			'AppImplMswRendererGl.cpp AppImplMswScreenSaver.cpp ' + \
+			'RendererDx.cpp')
+
 CINDERSRC_APP = ['../src/cinder/app/' + s for s in CINDERSRC_APP]
+
+CINDERSRC_MSW = Split('CinderMsw.cpp CinderMswGdiPlus.cpp StackWalker.cpp')
+CINDERSRC_MSW = ['../src/cinder/msw/' + s for s in CINDERSRC_MSW]
+
+CINDERSRC_DX = Split('DDSTextureLoader.cpp dx.cpp DxLight.cpp ' + \
+		'DxRenderTarget.cpp DxTexture.cpp DxTextureFont.cpp ' + \
+		'DxVbo.cpp FontEnumerator.cpp HlslProg.cpp')
+CINDERSRC_DX = ['../src/cinder/dx/' + s for s in CINDERSRC_DX]
 
 ANTTWEAKBARSRC = Split('LoadOGL.cpp TwBar.cpp TwColors.cpp TwFonts.cpp ' + \
 					'TwMgr.cpp TwOpenGL.cpp TwPrecomp.cpp')
+if platform == 'win32':
+	ANTTWEAKBARSRC += ['TwDirect3D11.cpp']
 ANTTWEAKBARSRC = ['../src/AntTweakBar/' + s for s in ANTTWEAKBARSRC]
 
 LIBTESS2SRC = Split('bucketalloc.c dict.c geom.c mesh.c priorityq.c ' + \
@@ -85,32 +110,55 @@ LIBTESS2SRC = ['../src/libtess2/' + s for s in LIBTESS2SRC]
 LINEBREAKSRC = Split('linebreak.c linebreakdata.c linebreakdef.c')
 LINEBREAKSRC = ['../src/linebreak/' + s for s in LINEBREAKSRC]
 
+VIDEOINPUTSRC = ['videoInput.cpp']
+VIDEOINPUTSRC = ['../src/videoInput/' + s for s in VIDEOINPUTSRC]
+
 CINDER_SOURCES = CINDERSRC + CINDERSRC_PARAMS + \
 		CINDERSRC_IP + CINDERSRC_GL + ANTTWEAKBARSRC + CINDERSRC_JSON + \
 		CINDERSRC_SVG + LIBTESS2SRC + LINEBREAKSRC + CINDERSRC_APP
 
 if platform == 'darwin':
 	CINDER_SOURCES += CINDERSRC_AUDIO + CINDERSRC_COCOA + CINDERSRC_QTIME
+elif platform == 'win32':
+	CINDER_SOURCES += CINDERSRC_AUDIO + CINDERSRC_MSW + CINDERSRC_QTIME + \
+			VIDEOINPUTSRC
 
 INCLUDES = ['../include',
 		'../boost',
 		'../include/rapidxml',
 		'../include/cinder/app',
 		'../src/AntTweakBar',
-		'../src/libtess2']
+		'../src/libtess2',
+		'../src/linebreak']
 
-CFLAGS = ' -fmessage-length=0 -Wno-trigraphs ' + \
-		' -Wno-missing-field-initializers -Wreturn-type ' + \
-		' -Wno-missing-prototypes -Wformat -Wno-missing-braces -Wparentheses ' + \
-		' -Wswitch -Wno-unused-function -Wno-unused-label ' + \
-		' -Wno-unused-parameter -Wunused-variable -Wunused-value ' + \
-		' -Wno-empty-body -Wno-uninitialized -Wno-unknown-pragmas -Wno-shadow ' + \
-		' -Wno-four-char-constants -Wno-conversion -Wno-shorten-64-to-32 ' + \
-		' -Wpointer-sign -Wno-newline-eof -fasm-blocks -ffast-math ' + \
-		' -Wdeprecated-declarations -Wno-sign-conversion ' + \
-		' -fstrict-aliasing'
+if platform != 'win32':
+	CFLAGS = ' -fmessage-length=0 -Wno-trigraphs ' + \
+			' -Wno-missing-field-initializers -Wreturn-type ' + \
+			' -Wno-missing-prototypes -Wformat -Wno-missing-braces -Wparentheses ' + \
+			' -Wswitch -Wno-unused-function -Wno-unused-label ' + \
+			' -Wno-unused-parameter -Wunused-variable -Wunused-value ' + \
+			' -Wno-empty-body -Wno-uninitialized -Wno-unknown-pragmas -Wno-shadow ' + \
+			' -Wno-four-char-constants -Wno-conversion -Wno-shorten-64-to-32 ' + \
+			' -Wpointer-sign -Wno-newline-eof -fasm-blocks -ffast-math ' + \
+			' -Wdeprecated-declarations -Wno-sign-conversion ' + \
+			' -fstrict-aliasing'
+else:
+	INCLUDES += ['../include/msw/png', '../include/msw/zlib',
+			'../include/msw', '../blocks/QuickTime/include/msw',
+			'../src/DxShaders']
+	CFLAGS = '/GS /analyze- /W3 /Zc:wchar_t /Zi /Gm- /Ox /Ob2 /fp:precise ' + \
+			'/D "WIN32" /D "NDEBUG" /D "_LIB" /D "NOMINMAX" ' + \
+			'/D "_WIN32_WINNT=0x0601" /D "_CRT_SECURE_NO_WARNINGS" ' + \
+			'/D "_SCL_SECURE_NO_WARNINGS" /D "_UNICODE" /D "UNICODE" ' + \
+			'/errorReport:prompt /WX- /Zc:forScope /arch:SSE2 /Gd /Oy- /Oi ' + \
+			'/MT /Ot /EHsc '
+	CCFLAGS = CFLAGS
+	CPPPATH = []
 
-LINKFLAGS = ' -dead_strip '
+if platform != 'win32':
+	LINKFLAGS = ' -dead_strip '
+else:
+	LINKFLAGS = '/NODEFAULTLIB /NOLOGO'
 
 if platform == 'darwin':
 	env['CC'] = 'clang'
@@ -119,19 +167,20 @@ if platform == 'darwin':
 		' -fpascal-strings '
 	LINKFLAGS += ' -arch i386 -mmacosx-version-min=10.7 '
 
-if DEBUG:
-	if platform == 'darwin':
-		CFLAGS += '-g -O0 '
+if platform != 'win32':
+	if DEBUG:
+		if platform == 'darwin':
+			CFLAGS += '-g -O0 '
+		else:
+			CFLAGS += '-ggdb2 -O0 '
 	else:
-		CFLAGS += '-ggdb2 -O0 '
-else:
-	CFLAGS += '-g0 -O3 '
+		CFLAGS += '-g0 -O3 '
 
-CCFLAGS = CFLAGS + ' -x c++ -fvisibility-inlines-hidden -std=c++11 ' + \
-		' -stdlib=libc++ -Wno-non-virtual-dtor -Wno-overloaded-virtual ' + \
-		' -Wno-exit-time-destructors -Wno-c++11-extensions -Winvalid-offsetof '
+	CCFLAGS = CFLAGS + ' -x c++ -fvisibility-inlines-hidden -std=c++11 ' + \
+			' -stdlib=libc++ -Wno-non-virtual-dtor -Wno-overloaded-virtual ' + \
+			' -Wno-exit-time-destructors -Wno-c++11-extensions -Winvalid-offsetof '
 
-CPPPATH = ['/usr/include']
+	CPPPATH = ['/usr/include']
 
 CPPPATH += INCLUDES
 
@@ -200,3 +249,5 @@ if (not GetOption('clean')) and (platform == 'posix'):
 # build the library
 env.StaticLibrary(source = CINDER_SOURCES, target = TARGET)
 
+if platform == 'win32':
+	env.Clean(TARGET, 'vc110.pdb')

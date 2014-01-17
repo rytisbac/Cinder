@@ -1,5 +1,7 @@
 Import('env')
 
+import os
+
 TARGET = '#' + env['APP_TARGET']
 
 SOURCES = map(lambda s: (s[0] == '/') and s or ('#../src/' + s), env['APP_SOURCES'])
@@ -25,10 +27,20 @@ if DEBUG:
 else:
 	LIBS = ['cinder']
 
-LIBS += ['libc++']
-
 if platform == 'darwin':
+	LIBS += ['libc++']
 	LIBPATH = ['../lib/macosx/']
+elif platform == 'win32':
+	env['ENV']['PATH'] = os.environ['PATH']
+	env['ENV']['INCLUDE'] = os.environ['INCLUDE']
+	env['ENV']['LIB'] = os.environ['LIB']
+	# linker is specified with full path because of conflict with cygwin's link command
+	env['LINK'] = '"' + os.environ['VSINSTALLDIR'] + '\VC\\bin\link.exe"'
+	LIBS += Split('Msimg32.lib OpenGL32.lib Strmiids.lib Ws2_32.lib ' + \
+		'advapi32.lib comdlg32.lib gdi32.lib kernel32.lib odbc32.lib ' + \
+		'odbccp32.lib ole32.lib oleaut32.lib shell32.lib shlwapi.lib ' + \
+		'user32.lib uuid.lib winspool.lib wldap32.lib wmvcore.lib zlib.lib')
+	LIBPATH = ['../lib/msw/x86']
 else:
 	LIBPATH = []
 
@@ -46,26 +58,45 @@ elif platform == 'posix':
 	# librt for glibc timer
 	LIBS += ['rt']
 
-CFLAGS = ' -fmessage-length=0 -Wno-trigraphs ' + \
-		' -Wno-missing-field-initializers -Wreturn-type ' + \
-		' -Wno-missing-prototypes -Wformat -Wno-missing-braces -Wparentheses ' + \
-		' -Wswitch -Wno-unused-function -Wno-unused-label ' + \
-		' -Wno-unused-parameter -Wunused-variable -Wunused-value ' + \
-		' -Wno-empty-body -Wno-uninitialized -Wno-unknown-pragmas -Wno-shadow ' + \
-		' -Wno-four-char-constants -Wno-conversion -Wno-shorten-64-to-32 ' + \
-		' -Wpointer-sign -Wno-newline-eof -fasm-blocks -ffast-math ' + \
-		' -Wdeprecated-declarations -Wno-sign-conversion ' +\
-		' -fstrict-aliasing '
-
-if DEBUG:
-	if platform == 'darwin':
-		CFLAGS += '-g -O0 '
-	else:
-		CFLAGS += '-ggdb2 -O0 '
+if platform != 'win32':
+	CFLAGS = ' -fmessage-length=0 -Wno-trigraphs ' + \
+			' -Wno-missing-field-initializers -Wreturn-type ' + \
+			' -Wno-missing-prototypes -Wformat -Wno-missing-braces -Wparentheses ' + \
+			' -Wswitch -Wno-unused-function -Wno-unused-label ' + \
+			' -Wno-unused-parameter -Wunused-variable -Wunused-value ' + \
+			' -Wno-empty-body -Wno-uninitialized -Wno-unknown-pragmas -Wno-shadow ' + \
+			' -Wno-four-char-constants -Wno-conversion -Wno-shorten-64-to-32 ' + \
+			' -Wpointer-sign -Wno-newline-eof -fasm-blocks -ffast-math ' + \
+			' -Wdeprecated-declarations -Wno-sign-conversion ' + \
+			' -fstrict-aliasing'
 else:
-	CFLAGS += '-g0 -O3 '
+	INCLUDES += ['../include/msw/png', '../include/msw/zlib',
+			'../include/msw', '../blocks/QuickTime/include/msw',
+			'../src/DxShaders']
+	CFLAGS = '/GS /analyze- /W3 /Zc:wchar_t /Zi /Gm- /Ox /Ob2 /fp:precise ' + \
+			'/D "WIN32" /D "NDEBUG" /D "_LIB" /D "NOMINMAX" ' + \
+			'/D "_WIN32_WINNT=0x0601" /D "_CRT_SECURE_NO_WARNINGS" ' + \
+			'/D "_SCL_SECURE_NO_WARNINGS" /D "_UNICODE" /D "UNICODE" ' + \
+			'/errorReport:prompt /WX- /Zc:forScope /arch:SSE2 /Gd /Oy- /Oi ' + \
+			'/MT /Ot /EHsc '
+	CCFLAGS = CFLAGS
+	CPPPATH = []
 
-LINKFLAGS = ' -dead_strip '
+if platform != 'win32':
+	LINKFLAGS = ' -dead_strip '
+else:
+	LINKFLAGS = '/NOLOGO /DYNAMICBASE:NO /SAFESEH ' + \
+			'/INCREMENTAL:NO /SUBSYSTEM:WINDOWS ' + \
+			'/ERRORREPORT:PROMPT /TLBID:1'
+
+if platform != 'win32':
+	if DEBUG:
+		if platform == 'darwin':
+			CFLAGS += '-g -O0 '
+		else:
+			CFLAGS += '-ggdb2 -O0 '
+	else:
+		CFLAGS += '-g0 -O3 '
 
 if platform == 'darwin':
 	env['CC'] = 'clang'
@@ -87,11 +118,13 @@ if platform == 'darwin':
 elif platform == 'posix':
 	CFLAGS += '-pthread '
 
-CCFLAGS = CFLAGS + ' -x c++ -fvisibility-inlines-hidden -std=c++11 ' + \
-		' -stdlib=libc++ -Wno-non-virtual-dtor -Wno-overloaded-virtual ' + \
-		' -Wno-exit-time-destructors -Wno-c++11-extensions -Winvalid-offsetof '
+if platform != 'win32':
+	CCFLAGS = CFLAGS + ' -x c++ -fvisibility-inlines-hidden -std=c++11 ' + \
+			' -stdlib=libc++ -Wno-non-virtual-dtor -Wno-overloaded-virtual ' + \
+			' -Wno-exit-time-destructors -Wno-c++11-extensions -Winvalid-offsetof '
 
-CPPPATH = ['/usr/include']
+	CPPPATH = ['/usr/include']
+
 CPPPATH += INCLUDES
 
 env.Append(CCFLAGS = Split(CCFLAGS))
@@ -186,6 +219,9 @@ if platform == 'darwin':
 						'\${ICON_FILE}': basename(ICON)}))
 
 	env.Clean(TARGET, bundle_name)
+elif platform == 'win32':
+	env.Clean(TARGET, '#vc110.pdb')
+
 
 # run
 if platform == 'darwin':
