@@ -156,6 +156,46 @@ if platform == 'darwin':
 			(basename(SOURCES[i]) in env['COMPILE_AS_MM']):
 				SOURCES[i] = env.Object(SOURCES[i], CCFLAGS = CCFLAGS_OBJC)
 
+if 'RESOURCES' not in env:
+	RESOURCES = []
+else:
+	# if a resource contains a regular expression call Glob
+	resources = []
+	abs_resources = Dir('#../resources/').abspath
+	for res in env['RESOURCES']:
+		if 1 in [c in res for c in '*?[]']:
+			glob_resources = Glob('#../resources/' + res, strings = True)
+			# convert to relative path
+			resources += [os.path.relpath(f, abs_resources) for f in glob_resources]
+		else:
+			resources.append(res)
+	RESOURCES = map(lambda s: (s[0] == '/') and s or [('#../resources/' + s), s], resources)
+
+if 'ASSETS' not in env:
+	ASSETS = []
+else:
+	# if an asset contains a regular expression call Glob
+	assets = []
+	abs_assets = Dir('#../assets/').abspath
+	for asset in env['ASSETS']:
+		if 1 in [c in asset for c in '*?[]']:
+			glob_assets = Glob('#../assets/' + asset, strings = True)
+			# convert to relative path
+			assets += [os.path.relpath(f, abs_assets) for f in glob_assets]
+		else:
+			assets.append(asset)
+	ASSETS = [['#../assets/' + s, 'assets/' + s] for s in assets]
+
+if platform == 'win32' and RESOURCES:
+	if 'RESOURCES_RC' not in env:
+		RESOURCES_RC = '#../vc2012/Resources.rc'
+	if not File(RESOURCES_RC).exists():
+		RESOURCES_RC='#Resources.rc'
+		from wintools import *
+		TOOL_CINDER_RES_RC(env)
+		env.CinderResRc(target = RESOURCES_RC, source = '#../include/Resources.h')
+	SOURCES += [env.RES(RESOURCES_RC)]
+
 # build the application
 env.Program(source = SOURCES, target = TARGET)
 
@@ -164,36 +204,6 @@ if platform == 'darwin':
 	import sys, os
 	from osxbundle import *
 	TOOL_BUNDLE(env)
-
-	if 'RESOURCES' not in env:
-		RESOURCES = []
-	else:
-		# if a resource contains a regular expression call Glob
-		resources = []
-		abs_resources = Dir('#../resources/').abspath
-		for res in env['RESOURCES']:
-			if 1 in [c in res for c in '*?[]']:
-				glob_resources = Glob('#../resources/' + res, strings = True)
-				# convert to relative path
-				resources += [os.path.relpath(f, abs_resources) for f in glob_resources]
-			else:
-				resources.append(res)
-		RESOURCES = map(lambda s: (s[0] == '/') and s or [('#../resources/' + s), s], resources)
-
-	if 'ASSETS' not in env:
-		ASSETS = []
-	else:
-		# if an asset contains a regular expression call Glob
-		assets = []
-		abs_assets = Dir('#../assets/').abspath
-		for asset in env['ASSETS']:
-			if 1 in [c in asset for c in '*?[]']:
-				glob_assets = Glob('#../assets/' + asset, strings = True)
-				# convert to relative path
-				assets += [os.path.relpath(f, abs_assets) for f in glob_assets]
-			else:
-				assets.append(asset)
-		ASSETS = [['#../assets/' + s, 'assets/' + s] for s in assets]
 
 	if 'PLIST' not in env:
 		PLIST = '#../xcode/Info.plist',
