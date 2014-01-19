@@ -195,6 +195,11 @@ if platform == 'win32' and RESOURCES:
 		TOOL_CINDER_RES_RC(env)
 		env.CinderResRc(target = RESOURCES_RC, source = '#../include/Resources.h')
 	SOURCES += [env.RES(RESOURCES_RC)]
+if platform == 'win32' and ASSETS:
+	for (src, dst) in ASSETS:
+		src = Entry(src).abspath
+		env.Command('#' + dst, src, Copy(dst, src))
+		env.Clean(TARGET, '#assets')
 
 # build the application
 env.Program(source = SOURCES, target = TARGET)
