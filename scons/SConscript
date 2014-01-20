@@ -68,7 +68,7 @@ if platform != 'win32':
 			' -Wno-four-char-constants -Wno-conversion -Wno-shorten-64-to-32 ' + \
 			' -Wpointer-sign -Wno-newline-eof -fasm-blocks -ffast-math ' + \
 			' -Wdeprecated-declarations -Wno-sign-conversion ' + \
-			' -fstrict-aliasing'
+			' -fstrict-aliasing '
 else:
 	INCLUDES += ['../include/msw/png', '../include/msw/zlib',
 			'../include/msw', '../blocks/QuickTime/include/msw',
