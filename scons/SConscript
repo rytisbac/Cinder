@@ -4,7 +4,7 @@ import os
 
 TARGET = '#' + env['APP_TARGET']
 
-SOURCES = map(lambda s: (s[0] == '/') and s or ('#../src/' + s), env['APP_SOURCES'])
+SOURCES = map(lambda s: os.path.isabs(s) and s or ('#../src/' + s), env['APP_SOURCES'])
 
 platform = env['PLATFORM']
 
