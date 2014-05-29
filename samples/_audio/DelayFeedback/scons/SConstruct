@@ -1,0 +1,7 @@
+env = Environment()
+
+env['APP_TARGET'] = 'DelayFeedbackApp'
+env['APP_SOURCES'] = ['DelayFeedbackApp.cpp']
+env['RESOURCES'] = ['smoothCircle.frag', 'smoothCircle.vert']
+
+SConscript('../../../../scons/SConscript', exports = 'env')

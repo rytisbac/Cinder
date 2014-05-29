@@ -1,7 +1,0 @@
-env = Environment()
-
-env['APP_TARGET'] = 'AudioPlaybackApp'
-env['APP_SOURCES'] = ['AudioPlaybackApp.cpp']
-env['RESOURCES'] = ['booyah.wav']
-
-SConscript('../../../scons/SConscript', exports = 'env')

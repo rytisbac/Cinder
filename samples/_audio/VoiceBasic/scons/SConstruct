@@ -1,0 +1,15 @@
+env = Environment()
+
+env['APP_TARGET'] = 'VoiceBasicApp'
+env['APP_SOURCES'] = ['VoiceBasicApp.cpp']
+
+if env['PLATFORM'] == 'darwin':
+	# TODO because of the relative path the resource has to be copied manually
+	_RESOURCES = ['../../../data/sound/DrainMagic.ogg']
+	from os.path import basename
+	for r in _RESOURCES:
+		fout = env['APP_TARGET'] + '.app/Contents/Resources/' + basename(r)
+		fin = File(r).abspath
+		Command('#' + fout, fin, Copy(fout, fin))
+
+SConscript('../../../../scons/SConscript', exports = 'env')

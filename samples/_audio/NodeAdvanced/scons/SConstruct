@@ -1,0 +1,9 @@
+env = Environment()
+
+env['APP_TARGET'] = 'NodeAdvancedApp'
+env['APP_SOURCES'] = ['NodeAdvancedApp.cpp', File('../../common/AudioDrawUtils.cpp').abspath]
+
+_INCLUDES = [Dir('../../common/').abspath]
+env.Append(CPPPATH = _INCLUDES)
+
+SConscript('../../../../scons/SConscript', exports = 'env')

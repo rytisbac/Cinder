@@ -1,0 +1,6 @@
+env = Environment()
+
+env['APP_TARGET'] = 'VoiceBasicProcessingApp'
+env['APP_SOURCES'] = ['VoiceBasicProcessingApp.cpp']
+
+SConscript('../../../../scons/SConscript', exports = 'env')

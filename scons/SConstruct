@@ -15,7 +15,7 @@ platform = env['PLATFORM']
 
 CINDERSRC = Split('Area.cpp AxisAlignedBox.cpp Base64.cpp BSpline.cpp ' + \
 		'BSplineFit.cpp BandedMatrix.cpp Buffer.cpp Camera.cpp ' + \
-		'Channel.cpp CinderMath.cpp ConvexHull.cpp Color.cpp ' + \
+		'Channel.cpp CinderAssert.cpp CinderMath.cpp ConvexHull.cpp Color.cpp ' + \
 		'DataSource.cpp DataTarget.cpp Exception.cpp Frustum.cpp ' + \
 		'ImageIo.cpp Json.cpp ' + \
 		'Matrix.cpp ObjLoader.cpp ' + \
@@ -46,12 +46,26 @@ CINDERSRC_IP = Split('Blend.cpp EdgeDetect.cpp Fill.cpp Flip.cpp Grayscale.cpp '
 		'Hdr.cpp Premultiply.cpp Resize.cpp Threshold.cpp Trim.cpp')
 CINDERSRC_IP = ['../src/cinder/ip/' + s for s in CINDERSRC_IP]
 
-CINDERSRC_AUDIO = Split('CocoaCaConverter.cpp FftProcessor.cpp ' + \
-		'FftProcessorImplAccelerate.cpp Input.cpp InputImplAudioUnit.cpp Io.cpp ' + \
-		'Output.cpp OutputImplAudioUnit.cpp PCMBuffer.cpp SourceFile.cpp ')
+CINDERSRC_AUDIO = Split('ChannelRouterNode.cpp Context.cpp DelayNode.cpp ' + \
+	'Device.cpp FileOggVorbis.cpp FilterNode.cpp GenNode.cpp InputNode.cpp ' + \
+	'MonitorNode.cpp Node.cpp NodeMath.cpp OutputNode.cpp PanNode.cpp ' + \
+	'Param.cpp SamplePlayerNode.cpp SampleRecorderNode.cpp Source.cpp ' + \
+	'Target.cpp Utilities.cpp Voice.cpp WaveTable.cpp ')
+if platform == 'darwin':
+	CINDERSRC_AUDIO_COCOA = Split('CinderCoreAudio.cpp ContextAudioUnit.cpp ' + \
+		'DeviceManagerCoreAudio.cpp FileCoreAudio.cpp ' )
+	CINDERSRC_AUDIO_COCOA = ['cocoa/' + s for s in CINDERSRC_AUDIO_COCOA]
+	CINDERSRC_AUDIO += CINDERSRC_AUDIO_COCOA
 if platform == 'win32':
-	CINDERSRC_AUDIO = Split('Io.cpp Output.cpp OutputImplXAudio.cpp ' + \
-			'PcmBuffer.cpp SourceFileWav.cpp SourceFileWindowsMedia.cpp')
+	CINDERSRC_AUDIO_MSW = Split('ContextWasapi.cpp ContextXAudio.cpp ' + \
+			'DeviceManagerWasapi.cpp FileMediaFoundation.cpp MswUtil.cpp ')
+	CINDERSRC_AUDIO_MSW = ['msw/' + s for s in CINDERSRC_AUDIO_MSW]
+	CINDERSRC_AUDIO += CINDERSRC_AUDIO_MSW
+
+CINDERSRC_AUDIO_DSP = Split('Biquad.cpp Converter.cpp ConverterR8brain.cpp Dsp.cpp ' + \
+	'Fft.cpp ooura/fftsg.cpp ')
+CINDERSRC_AUDIO_DSP = ['dsp/' + s for s in CINDERSRC_AUDIO_DSP]
+CINDERSRC_AUDIO += CINDERSRC_AUDIO_DSP
 
 CINDERSRC_AUDIO = ['../src/cinder/audio/' + s for s in CINDERSRC_AUDIO]
 
@@ -113,23 +127,38 @@ LINEBREAKSRC = ['../src/linebreak/' + s for s in LINEBREAKSRC]
 VIDEOINPUTSRC = ['videoInput.cpp']
 VIDEOINPUTSRC = ['../src/videoInput/' + s for s in VIDEOINPUTSRC]
 
+R8BRAINSRC = Split('../src/r8brain/r8bbase.cpp')
+
+VORBISSRC = Split('analysis.c bitrate.c block.c codebook.c envelope.c ' + \
+	'floor0.c floor1.c info.c lookup.c lpc.c lsp.c mapping0.c ' + \
+	'mdct.c psy.c registry.c res0.c sharedbook.c smallft.c synthesis.c ' + \
+	'vorbisenc.c vorbisfile.c window.c')
+VORBISSRC = ['../src/oggvorbis/vorbis/' + s for s in VORBISSRC]
+OGGSRC = Split('bitwise.c framing.c')
+OGGSRC = ['../src/oggvorbis/ogg/' + s for s in OGGSRC]
+
 CINDER_SOURCES = CINDERSRC + CINDERSRC_PARAMS + \
 		CINDERSRC_IP + CINDERSRC_GL + ANTTWEAKBARSRC + CINDERSRC_JSON + \
-		CINDERSRC_SVG + LIBTESS2SRC + LINEBREAKSRC + CINDERSRC_APP
+		CINDERSRC_SVG + LIBTESS2SRC + LINEBREAKSRC + CINDERSRC_APP + \
+		VORBISSRC + OGGSRC + R8BRAINSRC + CINDERSRC_AUDIO
 
 if platform == 'darwin':
-	CINDER_SOURCES += CINDERSRC_AUDIO + CINDERSRC_COCOA + CINDERSRC_QTIME
+	CINDER_SOURCES += CINDERSRC_COCOA + CINDERSRC_QTIME
 elif platform == 'win32':
-	CINDER_SOURCES += CINDERSRC_AUDIO + CINDERSRC_MSW + CINDERSRC_QTIME + \
+	CINDER_SOURCES += CINDERSRC_MSW + CINDERSRC_QTIME + \
 			VIDEOINPUTSRC
 
 INCLUDES = ['../include',
 		'../boost',
 		'../include/rapidxml',
 		'../include/cinder/app',
+		'../include/oggvorbis',
 		'../src/AntTweakBar',
 		'../src/libtess2',
-		'../src/linebreak']
+		'../src/linebreak',
+		'../src/oggvorbis',
+		'../src/oggvorbis/vorbis',
+		'../src/r8brain']
 
 if platform != 'win32':
 	CFLAGS = ' -fmessage-length=0 -Wno-trigraphs ' + \
@@ -199,9 +228,9 @@ if platform == 'darwin':
 		'"-DIBOutletCollection(ClassName)=__attribute__((iboutletcollection(ClassName)))" ' + \
 		'"-DIBAction=void)__attribute__((ibaction)" '
 
-	env.Append(FRAMEWORKS = Split('Accelerate AudioToolbox AudioUnit CoreAudio ' + \
-		'ApplicationServices QuickTime QTKit CoreVideo Carbon OpenGl Cocoa ' + \
-		'AppKit CoreData Foundation CoreServices '))
+	env.Append(FRAMEWORKS = Split('AppKit ApplicationServices AudioUnit ' + \
+		'AudioToolbox AVFoundation Cocoa CoreAudio CoreData CoreGraphics ' + \
+		'CoreMedia CoreVideo Foundation OpenGl QTKit '))
 
 	# change compile flags for C and ObjC files
 	for i in range(len(CINDER_SOURCES)):
