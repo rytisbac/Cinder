@@ -34,6 +34,7 @@ scons/config.log
 .sconsign.dblite
 *.o
 *.obj
+vc120.pdb
 
 # doxygen generated files
 docs/html

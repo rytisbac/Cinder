@@ -73,19 +73,20 @@ else:
 	INCLUDES += ['../include/msw/png', '../include/msw/zlib',
 			'../include/msw', '../blocks/QuickTime/include/msw',
 			'../src/DxShaders']
-	CFLAGS = '/GS /analyze- /W3 /Zc:wchar_t /Zi /Gm- /Ox /Ob2 /fp:precise ' + \
-			'/D "WIN32" /D "NDEBUG" /D "_LIB" /D "NOMINMAX" ' + \
-			'/D "_WIN32_WINNT=0x0601" /D "_CRT_SECURE_NO_WARNINGS" ' + \
-			'/D "_SCL_SECURE_NO_WARNINGS" /D "_UNICODE" /D "UNICODE" ' + \
-			'/errorReport:prompt /WX- /Zc:forScope /arch:SSE2 /Gd /Oy- /Oi ' + \
-			'/MT /Ot /EHsc '
+	CFLAGS = '/GS /GL /analyze- /W3 /Zc:wchar_t /Zi /Gm- /Ox /O2 /fp:precise ' + \
+			'/D "WIN32" /D "NDEBUG" /D "_WINDOWS" '+ \
+			'/D "_UNICODE" /D "UNICODE" ' + \
+			'/errorReport:prompt /WX- /Zc:forScope /FS /Gd /Oy- /Oi ' + \
+			'/MT /Ot /EHsc /nologo /arch:SSE2 '
+
 	CCFLAGS = CFLAGS
 	CPPPATH = []
 
 if platform != 'win32':
 	LINKFLAGS = ' -dead_strip '
 else:
-	LINKFLAGS = '/NOLOGO /DYNAMICBASE:NO /SAFESEH ' + \
+	LINKFLAGS = '/LTCG /NOLOGO /DYNAMICBASE:NO /SAFESEH ' + \
+			'/MACHINE:X86 /OPT:REF ' + \
 			'/INCREMENTAL:NO /SUBSYSTEM:WINDOWS ' + \
 			'/ERRORREPORT:PROMPT /TLBID:1'
 
@@ -235,7 +236,7 @@ if platform == 'darwin':
 
 	env.Clean(TARGET, bundle_name)
 elif platform == 'win32':
-	env.Clean(TARGET, '#vc110.pdb')
+	env.Clean(TARGET, '#vc120.pdb')
 
 
 # run

@@ -179,8 +179,8 @@ else:
 			'/D "WIN32" /D "NDEBUG" /D "_LIB" /D "NOMINMAX" ' + \
 			'/D "_WIN32_WINNT=0x0601" /D "_CRT_SECURE_NO_WARNINGS" ' + \
 			'/D "_SCL_SECURE_NO_WARNINGS" /D "_UNICODE" /D "UNICODE" ' + \
-			'/errorReport:prompt /WX- /Zc:forScope /arch:SSE2 /Gd /Oy- /Oi ' + \
-			'/MT /Ot /EHsc '
+			'/errorReport:prompt /WX- /Zc:forScope /FS /Gd /Oy- /Oi ' + \
+			'/MT /Ot /EHsc /nologo /arch:SSE2 '
 	CCFLAGS = CFLAGS
 	CPPPATH = []
 
@@ -279,4 +279,4 @@ if (not GetOption('clean')) and (platform == 'posix'):
 env.StaticLibrary(source = CINDER_SOURCES, target = TARGET)
 
 if platform == 'win32':
-	env.Clean(TARGET, 'vc110.pdb')
+	env.Clean(TARGET, 'vc120.pdb')
