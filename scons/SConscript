@@ -36,10 +36,10 @@ elif platform == 'win32':
 	env['ENV']['LIB'] = os.environ['LIB']
 	# linker is specified with full path because of conflict with cygwin's link command
 	env['LINK'] = '"' + os.environ['VSINSTALLDIR'] + '\VC\\bin\link.exe"'
-	LIBS += Split('Msimg32.lib OpenGL32.lib Strmiids.lib Ws2_32.lib ' + \
+	LIBS += Split(
 		'advapi32.lib comdlg32.lib gdi32.lib kernel32.lib odbc32.lib ' + \
-		'odbccp32.lib ole32.lib oleaut32.lib shell32.lib shlwapi.lib ' + \
-		'user32.lib uuid.lib winspool.lib wldap32.lib wmvcore.lib zlib.lib')
+		'odbccp32.lib ole32.lib oleaut32.lib shell32.lib ' + \
+		'user32.lib uuid.lib winspool.lib ')
 	LIBPATH = ['../lib/msw/x86']
 else:
 	LIBPATH = []
