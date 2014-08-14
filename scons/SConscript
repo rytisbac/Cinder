@@ -185,7 +185,7 @@ else:
 			assets += [os.path.relpath(f, abs_assets) for f in glob_assets]
 		else:
 			assets.append(asset)
-	ASSETS = map(lambda s: os.path.isabs(s) and s or [('#../assets/' + s), s], assets)
+	ASSETS = map(lambda s: os.path.isabs(s) and s or [('#../assets/' + s), 'assets/' + s], assets)
 
 if platform == 'win32' and RESOURCES:
 	if 'RESOURCES_RC' not in env:
