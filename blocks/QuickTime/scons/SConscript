@@ -1,0 +1,10 @@
+Import('env')
+
+if env['PLATFORM'] == 'win32':
+	_INCLUDES = [Dir('../include/msw').abspath]
+	_LIBS = Split('CVClient.lib QTMLClient.lib QTSClient.lib QTVR.lib')
+	_LIBS = [Dir('../lib/msw/x86/').abspath + '/' + s for s in _LIBS]
+	env.Append(CPPPATH = _INCLUDES)
+	env.Append(LIBS = _LIBS)
+
+Return('env')
