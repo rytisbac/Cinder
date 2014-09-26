@@ -7,4 +7,11 @@ if env['PLATFORM'] == 'win32':
 	env.Append(CPPPATH = _INCLUDES)
 	env.Append(LIBS = _LIBS)
 
+	_BINARIES = ['QTCF.dll']
+	# TODO: use a default QT_PATH if it does not exist is env
+	QT_PATH = 'c:/Program Files (x86)/QuickTime/QTSystem'
+	for f in _BINARIES:
+		fin = Dir(QT_PATH).abspath + '/' + f
+		Command('#' + f, fin, Copy(f, fin))
+
 Return('env')
