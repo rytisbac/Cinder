@@ -4,3 +4,5 @@ env['APP_TARGET'] = 'QuickTimeBasicApp'
 env['APP_SOURCES'] = ['QuickTimeBasicApp.cpp']
 
 SConscript('../../../scons/SConscript', exports = 'env')
+if env['PLATFORM'] == 'win32':
+	env = SConscript('../../../blocks/Quicktime/scons/SConscript', exports = 'env')
