@@ -81,7 +81,7 @@ CINDERSRC_QTIME = ['../src/cinder/qtime/' + s for s in CINDERSRC_QTIME]
 CINDERSRC_SVG = Split('Svg.cpp')
 CINDERSRC_SVG = ['../src/cinder/svg/' + s for s in CINDERSRC_SVG]
 
-CINDERSRC_GL = Split('DisplayList.cpp Fbo.cpp GLee.c GlslProg.cpp Light.cpp ' + \
+CINDERSRC_GL = Split('DisplayList.cpp Fbo.cpp GlslProg.cpp Light.cpp ' + \
 		'Material.cpp StereoAutoFocuser.cpp Texture.cpp TextureFont.cpp ' + \
 		'TileRender.cpp Vbo.cpp gl.cpp')
 CINDERSRC_GL = ['../src/cinder/gl/' + s for s in CINDERSRC_GL]
