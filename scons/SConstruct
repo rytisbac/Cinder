@@ -84,6 +84,8 @@ CINDERSRC_SVG = ['../src/cinder/svg/' + s for s in CINDERSRC_SVG]
 CINDERSRC_GL = Split('DisplayList.cpp Fbo.cpp GlslProg.cpp Light.cpp ' + \
 		'Material.cpp StereoAutoFocuser.cpp Texture.cpp TextureFont.cpp ' + \
 		'TileRender.cpp Vbo.cpp gl.cpp')
+if platform == 'win32':
+	CINDERSRC_GL += ['GLee.c']
 CINDERSRC_GL = ['../src/cinder/gl/' + s for s in CINDERSRC_GL]
 
 CINDERSRC_APP = Split('App.cpp AppBasic.cpp ' + \
