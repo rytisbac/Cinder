@@ -25,6 +25,7 @@
 #pragma once
 
 #include "cinder/Cinder.h"
+#include "cinder/Exception.h"
 #include "cinder/MatrixStack.h"
 
 #if defined( CINDER_MSW )
@@ -37,9 +38,6 @@
 	#undef max
 #endif
 
-#if !defined( CINDER_WINRT )
-	#include "cinder/gl/gl.h"  // necessary to give GLee the jump on Cocoa.h
-#endif
 #include "cinder/Surface.h"
 #include "cinder/Display.h"
 
@@ -49,13 +47,9 @@
 	#include <CoreFoundation/CoreFoundation.h>
 	#if defined __OBJC__
 		@class AppImplCocoaRendererQuartz;
-		@class AppImplCocoaRendererGl;
-		@class NSOpenGLContext;
 		@class NSView;
 	#else
 		class AppImplCocoaRendererQuartz;
-		class AppImplCocoaRendererGl;
-		class NSOpenGLContext;
 		class NSView;
 	#endif
 	typedef struct _CGLContextObject       *CGLContextObj;
@@ -63,16 +57,12 @@
 #elif defined( CINDER_COCOA_TOUCH )
 	#if defined __OBJC__
 		typedef struct CGContext * CGContextRef;
-		@class AppImplCocoaTouchRendererGl;
 		@class AppImplCocoaTouchRendererQuartz;
 		@class UIView;
-		@class EAGLContext;
 	#else
 		typedef struct CGContext * CGContextRef;
-		class AppImplCocoaTouchRendererGl;
 		class AppImplCocoaTouchRendererQuartz;
 		class UIView;
-		class EAGLContext;
 	#endif
 #endif
 
@@ -87,12 +77,12 @@ class App;
 typedef std::shared_ptr<class Renderer>		RendererRef;
 class Renderer {
  public:
-	enum RendererType
-	{
+	enum RendererType {
 		RENDERER_GL,
 		RENDERER_DX
 	};
-	virtual ~Renderer() {};
+
+	virtual ~Renderer() {}
 	
 	virtual RendererRef	clone() const = 0;
 	virtual RendererType getRendererType() const { return RENDERER_GL; }
@@ -104,10 +94,9 @@ class Renderer {
 		virtual CGLContextObj			getCglContext() { throw; } // the default behavior is failure
 		virtual CGLPixelFormatObj		getCglPixelFormat() { throw; } // the default behavior is failure
 	#elif defined( CINDER_COCOA_TOUCH )
-		virtual void	setup( App *aApp, const Area &frame, UIView *cinderView, RendererRef sharedRenderer ) = 0;
-		virtual bool	isEaglLayer() const { return false; }
+		virtual void		setup( App *aApp, const Area &frame, UIView *cinderView, RendererRef sharedRenderer ) = 0;
+		virtual bool		isEaglLayer() const { return false; }
 	#endif
-
 
 	virtual void	setFrameSize( int width, int height ) {}		
 
@@ -131,8 +120,9 @@ class Renderer {
 	virtual Surface	copyWindowSurface( const Area &area ) = 0;
 
 	virtual void startDraw() {}
-	virtual void finishDraw() {}		
+	virtual void finishDraw() {}
 	virtual void makeCurrentContext() {}
+	virtual void swapBuffers() {}
 	virtual void defaultResize() {}
 
  protected:
@@ -140,66 +130,6 @@ class Renderer {
 	Renderer( const Renderer &renderer );
 
 	App			*mApp;
-};
-
-#if !defined( CINDER_WINRT )
-typedef std::shared_ptr<class RendererGl>	RendererGlRef;
-class RendererGl : public Renderer {
-  public:
-#if defined( CINDER_COCOA_TOUCH )
-	RendererGl( int aAntiAliasing = AA_MSAA_4 );
-#else
-	RendererGl( int aAntiAliasing = AA_MSAA_16 );
-#endif
-	~RendererGl();
-
-	static RendererGlRef	create( int antiAliasing = AA_MSAA_16 ) { return RendererGlRef( new RendererGl( antiAliasing ) ); }
-	virtual RendererRef		clone() const { return RendererGlRef( new RendererGl( *this ) ); }
- 
-#if defined( CINDER_COCOA )
-	#if defined( CINDER_MAC )
-		virtual void setup( App *aApp, CGRect frame, NSView *cinderView, RendererRef sharedRenderer, bool retinaEnabled );
-		virtual CGLContextObj			getCglContext();
-		virtual CGLPixelFormatObj		getCglPixelFormat();
-		virtual NSOpenGLContext*		getNsOpenGlContext();		
-	#elif defined( CINDER_COCOA_TOUCH )
-		virtual void 	setup( App *aApp, const Area &frame, UIView *cinderView, RendererRef sharedRenderer );
-		virtual bool 	isEaglLayer() const { return true; }
-		EAGLContext*	getEaglContext() const;
-	#endif
-	virtual void	setFrameSize( int width, int height );
-#elif defined( CINDER_MSW )
-	virtual void	setup( App *aApp, HWND wnd, HDC dc, RendererRef sharedRenderer );
-	virtual void	kill();
-	virtual HWND	getHwnd() { return mWnd; }
-	virtual void	prepareToggleFullScreen();
-	virtual void	finishToggleFullScreen();
-#endif
-
-	enum	{ AA_NONE = 0, AA_MSAA_2, AA_MSAA_4, AA_MSAA_6, AA_MSAA_8, AA_MSAA_16, AA_MSAA_32 };
-	static const int	sAntiAliasingSamples[];
-	void				setAntiAliasing( int aAntiAliasing );
-	int					getAntiAliasing() const { return mAntiAliasing; }
-
-	virtual void	startDraw();
-	virtual void	finishDraw();
-	virtual void	defaultResize();
-	virtual void	makeCurrentContext();
-	virtual Surface	copyWindowSurface( const Area &area );
-	
- protected:
-	RendererGl( const RendererGl &renderer );
-
-	int			mAntiAliasing;
-#if defined( CINDER_MAC )
-	AppImplCocoaRendererGl		*mImpl;
-#elif defined( CINDER_COCOA_TOUCH )
-	AppImplCocoaTouchRendererGl	*mImpl;
-#elif defined( CINDER_MSW )
-	class AppImplMswRendererGl	*mImpl;
-	HWND						mWnd;
-	friend class				AppImplMswRendererGl;
-#endif
 };
 
 typedef std::shared_ptr<class Renderer2d>	Renderer2dRef;
@@ -272,7 +202,11 @@ class Renderer2d : public Renderer {
 };
 
 #endif
-#endif // !defined( CINDER_WINRT )
 
+class ExcRenderer : public Exception {
+};
+
+class ExcRendererAllocation : public ExcRenderer {
+};
 
 } } // namespace cinder::app
