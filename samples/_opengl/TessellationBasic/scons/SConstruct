@@ -1,0 +1,7 @@
+env = Environment()
+
+env['APP_TARGET'] = 'TessellationBasicApp'
+env['APP_SOURCES'] = ['TessellationBasicApp.cpp']
+env['ASSETS'] = Split('0_vert.glsl 1_tess_ctrl.glsl 2_tess_eval.glsl 3_frag.glsl')
+
+SConscript('../../../../scons/SConscript', exports = 'env')

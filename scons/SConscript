@@ -108,7 +108,7 @@ if platform == 'darwin':
 	LINKFLAGS += ' -arch i386 -all_load -mmacosx-version-min=10.7 '
 
 	if 'ICON' not in env:
-		ICON = '../samples/BasicAppMultiWindow/resources/CinderApp.icns'
+		ICON = '../samples/data/CinderApp.icns'
 	else:
 		ICON = '#../resources/' + env['ICON']
 

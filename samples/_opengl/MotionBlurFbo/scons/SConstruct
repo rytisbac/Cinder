@@ -1,0 +1,6 @@
+env = Environment()
+
+env['APP_TARGET'] = 'MotionBlurFboApp'
+env['APP_SOURCES'] = ['MotionBlurFboApp.cpp']
+
+SConscript('../../../../scons/SConscript', exports = 'env')

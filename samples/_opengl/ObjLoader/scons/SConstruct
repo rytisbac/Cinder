@@ -1,0 +1,7 @@
+env = Environment()
+
+env['APP_TARGET'] = 'ObjLoaderApp'
+env['APP_SOURCES'] = ['ObjLoaderApp.cpp']
+env['ASSETS'] = ['warpdodec.obj']
+
+SConscript('../../../../scons/SConscript', exports = 'env')

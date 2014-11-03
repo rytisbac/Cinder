@@ -1,0 +1,6 @@
+env = Environment()
+
+env['APP_TARGET'] = 'ImmediateModeApp.cpp'
+env['APP_SOURCES'] = ['ImmediateModeApp.cpp']
+
+SConscript('../../../../scons/SConscript', exports = 'env')

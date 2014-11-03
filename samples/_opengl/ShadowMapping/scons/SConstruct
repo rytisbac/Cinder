@@ -1,0 +1,7 @@
+env = Environment()
+
+env['APP_TARGET'] = 'ShadowMappingApp'
+env['APP_SOURCES'] = ['ShadowMappingApp.cpp']
+env['ASSETS'] = ['shadow_mapping.frag', 'shadow_mapping.vert']
+
+SConscript('../../../../scons/SConscript', exports = 'env')

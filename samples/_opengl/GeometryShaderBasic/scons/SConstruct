@@ -1,0 +1,7 @@
+env = Environment()
+
+env['APP_TARGET'] = 'GeometryShaderBasicApp'
+env['APP_SOURCES'] = ['GeometryShaderBasicApp.cpp']
+env['ASSETS'] = ['basic.*']
+
+SConscript('../../../../scons/SConscript', exports = 'env')

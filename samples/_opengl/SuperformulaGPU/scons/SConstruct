@@ -1,0 +1,7 @@
+env = Environment()
+
+env['APP_TARGET'] = 'SuperformulaGPUApp'
+env['APP_SOURCES'] = ['SuperformulaGPUApp.cpp']
+env['ASSETS'] = ['shader.*', 'normals_shader.*']
+
+SConscript('../../../../scons/SConscript', exports = 'env')

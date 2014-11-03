@@ -1,0 +1,7 @@
+env = Environment()
+
+env['APP_TARGET'] = 'InstancedTeapotsApp'
+env['APP_SOURCES'] = ['InstancedTeapotsApp.cpp']
+env['ASSETS'] = ['shader.frag', 'shader.vert', 'texture.jpg']
+
+SConscript('../../../../scons/SConscript', exports = 'env')

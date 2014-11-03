@@ -1,0 +1,7 @@
+env = Environment()
+
+env['APP_TARGET'] = 'HighDynamicRangeApp'
+env['APP_SOURCES'] = ['HighDynamicRangeApp.cpp']
+env['ASSETS'] = ['shader.frag', 'shader.vert', 'Desk_oBA2_scaled.hdr']
+
+SConscript('../../../../scons/SConscript', exports = 'env')

@@ -1,0 +1,7 @@
+env = Environment()
+
+env['APP_TARGET'] = 'CubeMappingApp'
+env['APP_SOURCES'] = ['CubeMappingApp.cpp']
+env['ASSETS'] = ['env_map.frag', 'env_map.vert', 'env_map.jpg', 'sky_box.frag', 'sky_box.vert']
+
+SConscript('../../../../scons/SConscript', exports = 'env')

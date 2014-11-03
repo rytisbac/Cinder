@@ -1,0 +1,10 @@
+env = Environment()
+
+env['APP_TARGET'] = 'PostProcessingAAApp'
+env['APP_SOURCES'] = ['PostProcessingAAApp.cpp', 'Pistons.cpp', 'Shader.cpp', \
+		'fxaa/FXAA.cpp', 'smaa/SMAA.cpp']
+env['ASSETS'] = Split('FXAA3_11.h fxaa.frag fxaa.vert smaa.png ' + \
+		'smaa1.vert smaa2.vert smaa3.vert SMAA.h fxaa.png ' + \
+		'original.png smaa1.frag smaa2.frag smaa3.frag');
+
+SConscript('../../../../scons/SConscript', exports = 'env')

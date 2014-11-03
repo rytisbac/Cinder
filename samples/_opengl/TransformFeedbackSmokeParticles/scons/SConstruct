@@ -1,0 +1,7 @@
+env = Environment()
+
+env['APP_TARGET'] = 'TransformFeedbackSmokeParticlesApp'
+env['APP_SOURCES'] = ['TransformFeedbackSmokeParticlesApp.cpp']
+env['ASSETS'] = Split('renderSmoke.frag renderSmoke.vert smoke_blur.png updateSmoke.vert')
+
+SConscript('../../../../scons/SConscript', exports = 'env')

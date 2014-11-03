@@ -1,0 +1,10 @@
+env = Environment()
+
+env['APP_TARGET'] = 'NormalMappingApp'
+env['APP_SOURCES'] = ['NormalMappingApp.cpp', 'DebugMesh.cpp']
+env['ASSETS'] = Split('copyright.png leprechaun.msh leprechaun_diffuse.jpg ' + \
+	'leprechaun_emmisive.png leprechaun_normal.jpg leprechaun_specular.jpg ' + \
+	'normal_mapping_frag.glsl normal_mapping_vert.glsl ' + \
+	'wireframe_frag.glsl wireframe_geom.glsl wireframe_vert.glsl')
+
+SConscript('../../../../scons/SConscript', exports = 'env')

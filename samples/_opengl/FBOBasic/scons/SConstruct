@@ -1,0 +1,6 @@
+env = Environment()
+
+env['APP_TARGET'] = 'FboBasicApp'
+env['APP_SOURCES'] = ['FboBasicApp.cpp']
+
+SConscript('../../../../scons/SConscript', exports = 'env')

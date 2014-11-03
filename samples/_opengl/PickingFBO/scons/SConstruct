@@ -1,0 +1,7 @@
+env = Environment()
+
+env['APP_TARGET'] = 'PickingFBOApp'
+env['APP_SOURCES'] = ['PickingFBOApp.cpp']
+env['ASSETS'] = Split('not_pickable.vs.glsl pickable.fs.glsl pickable.vs.glsl')
+
+SConscript('../../../../scons/SConscript', exports = 'env')

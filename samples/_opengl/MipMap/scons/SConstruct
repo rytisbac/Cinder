@@ -1,0 +1,10 @@
+env = Environment()
+
+env['APP_TARGET'] = 'MipMapApp'
+env['APP_SOURCES'] = ['MipMapApp.cpp']
+env['RESOURCES'] = ['GL_LIN_MIP_LIN.png', 'GL_LIN_MIP_NEA.png',
+	'GL_NEA_MIP_LIN.png', 'GL_NEA_MIP_NEA.png', 'anisotropicbutton.png',
+	'checkerboard.png', 'glgenmipmap.png', 'non_pot_checkerboard.png',
+	'usergenmipmap.png', 'userresizedmipmap.png']
+
+SConscript('../../../../scons/SConscript', exports = 'env')

@@ -1,0 +1,7 @@
+env = Environment()
+
+env['APP_TARGET'] = 'TransformFeedbackClothSimulationApp'
+env['APP_SOURCES'] = ['TransformFeedbackClothSimulationApp.cpp']
+env['ASSETS'] = Split('render.frag render.vert update.vert')
+
+SConscript('../../../../scons/SConscript', exports = 'env')

@@ -1,0 +1,7 @@
+env = Environment()
+
+env['APP_TARGET'] = 'StencilReflectionApp'
+env['APP_SOURCES'] = ['StencilReflectionApp.cpp']
+env['ASSETS'] = ['shader.frag', 'shader.vert']
+
+SConscript('../../../../scons/SConscript', exports = 'env')

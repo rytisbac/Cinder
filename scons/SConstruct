@@ -15,20 +15,20 @@ platform = env['PLATFORM']
 
 CINDERSRC = Split('Area.cpp AxisAlignedBox.cpp Base64.cpp BSpline.cpp ' + \
 		'BSplineFit.cpp BandedMatrix.cpp Buffer.cpp Camera.cpp ' + \
-		'Channel.cpp CinderAssert.cpp CinderMath.cpp ConvexHull.cpp Color.cpp ' + \
+		'Channel.cpp CinderAssert.cpp CinderMath.cpp Clipboard.cpp ConvexHull.cpp Color.cpp ' + \
 		'DataSource.cpp DataTarget.cpp Exception.cpp Frustum.cpp ' + \
-		'ImageIo.cpp Json.cpp ' + \
-		'Matrix.cpp ObjLoader.cpp ' + \
+		'GeomIo.cpp ImageIo.cpp ImageSourceFileRadiance.cpp Json.cpp ' + \
+		'Log.cpp Matrix.cpp MatrixStack.cpp ObjLoader.cpp ' + \
 		'Path2d.cpp Perlin.cpp Plane.cpp PolyLine.cpp Rand.cpp Ray.cpp Rect.cpp ' + \
 		'Serial.cpp Shape2d.cpp Sphere.cpp Stream.cpp Surface.cpp System.cpp ' + \
 		'Text.cpp Timer.cpp Triangulate.cpp TriMesh.cpp Url.cpp Xml.cpp ' + \
 		'Capture.cpp Display.cpp Font.cpp ' + \
 		'Timeline.cpp TimelineItem.cpp Tween.cpp ' + \
-		'Unicode.cpp Utilities.cpp Clipboard.cpp ')
+		'Unicode.cpp Utilities.cpp ')
 
 if platform == 'darwin':
 	CINDERSRC += Split('ImageTargetFileQuartz.cpp UrlImplCocoa.mm ' + \
-				 'CaptureImplQtKit.mm ImageSourceFileQuartz.cpp')
+				 'CaptureImplAvFoundation.mm ImageSourceFileQuartz.cpp')
 elif platform == 'posix':
 	CINDERSRC += ['UrlImplCurl.cpp']
 elif platform == 'win32':
@@ -75,15 +75,21 @@ CINDERSRC_COCOA = ['../src/cinder/cocoa/' + s for s in CINDERSRC_COCOA]
 CINDERSRC_JSON = Split('json_reader.cpp json_value.cpp json_writer.cpp')
 CINDERSRC_JSON = ['../src/jsoncpp/' + s for s in CINDERSRC_JSON]
 
-CINDERSRC_QTIME = Split('QuickTime.cpp QuickTimeUtils.cpp MovieWriter.cpp')
+CINDERSRC_QTIME = Split('AvfUtils.mm MovieWriter.cpp QuickTimeGlImplAvf.cpp ' + \
+	'QuickTimeImplAvf.mm QuickTimeUtils.cpp')
 CINDERSRC_QTIME = ['../src/cinder/qtime/' + s for s in CINDERSRC_QTIME]
 
 CINDERSRC_SVG = Split('Svg.cpp')
 CINDERSRC_SVG = ['../src/cinder/svg/' + s for s in CINDERSRC_SVG]
 
-CINDERSRC_GL = Split('DisplayList.cpp Fbo.cpp GlslProg.cpp Light.cpp ' + \
-		'Material.cpp StereoAutoFocuser.cpp Texture.cpp TextureFont.cpp ' + \
-		'TileRender.cpp Vbo.cpp gl.cpp')
+CINDERSRC_GL = Split('Batch.cpp BufferObj.cpp BufferTexture.cpp ConstantStrings.cpp ' + \
+	'Context.cpp Environment.cpp EnvironmentCore.cpp EnvironmentEs.cpp ' + \
+	'Fbo.cpp GlslProg.cpp Pbo.cpp Query.cpp Shader.cpp Sync.cpp Texture.cpp ' + \
+	'TextureFont.cpp TextureFormatParsers.cpp TransformFeedbackObj.cpp ' + \
+	'TransformFeedbackObjImplHardware.cpp TransformFeedbackObjImplSoftware.cpp ' + \
+	'Ubo.cpp Vao.cpp VaoImplCore.cpp VaoImplEs.cpp VaoImplSoftware.cpp Vbo.cpp ' + \
+	'VboMesh.cpp gl.cpp')
+
 if platform == 'win32':
 	CINDERSRC_GL += ['GLee.c']
 CINDERSRC_GL = ['../src/cinder/gl/' + s for s in CINDERSRC_GL]
@@ -93,7 +99,7 @@ CINDERSRC_APP = Split('App.cpp AppBasic.cpp ' + \
 if platform == 'darwin':
 	CINDERSRC_APP += Split('AppImplCocoaBasic.mm ' + \
 			'AppImplCocoaRendererGl.mm AppImplCocoaRendererQuartz.mm ' + \
-			'CinderView.mm')
+			'CinderView.mm RendererGl.cpp')
 elif platform == 'posix':
 	CINDERSRC_APP += Split('AppImplLinux.cpp AppImplLinuxBasic.cpp ' + \
 			'AppImplLinuxRendererGl.cpp')
@@ -113,8 +119,8 @@ CINDERSRC_DX = Split('DDSTextureLoader.cpp dx.cpp DxLight.cpp ' + \
 		'DxVbo.cpp FontEnumerator.cpp HlslProg.cpp')
 CINDERSRC_DX = ['../src/cinder/dx/' + s for s in CINDERSRC_DX]
 
-ANTTWEAKBARSRC = Split('LoadOGL.cpp TwBar.cpp TwColors.cpp TwFonts.cpp ' + \
-					'TwMgr.cpp TwOpenGL.cpp TwPrecomp.cpp')
+ANTTWEAKBARSRC = Split('LoadOGL.cpp LoadOGLCore.cpp TwBar.cpp TwColors.cpp TwFonts.cpp ' + \
+					'TwMgr.cpp TwOpenGL.cpp TwOpenGLCore.cpp TwPrecomp.cpp')
 if platform == 'win32':
 	ANTTWEAKBARSRC += ['TwDirect3D11.cpp']
 ANTTWEAKBARSRC = ['../src/AntTweakBar/' + s for s in ANTTWEAKBARSRC]
@@ -122,6 +128,11 @@ ANTTWEAKBARSRC = ['../src/AntTweakBar/' + s for s in ANTTWEAKBARSRC]
 LIBTESS2SRC = Split('bucketalloc.c dict.c geom.c mesh.c priorityq.c ' + \
 		'sweep.c tess.c')
 LIBTESS2SRC = ['../src/libtess2/' + s for s in LIBTESS2SRC]
+
+GLLOADSRC = ['gl_load.c', 'gl_load_cpp.cpp']
+if platform == 'win32':
+	GLLOADSRC += ['wgl_load.c', 'wgl_load_cpp.cpp']
+GLLOADSRC = ['../src/glload/' + s for s in GLLOADSRC]
 
 LINEBREAKSRC = Split('linebreak.c linebreakdata.c linebreakdef.c')
 LINEBREAKSRC = ['../src/linebreak/' + s for s in LINEBREAKSRC]
@@ -141,7 +152,7 @@ OGGSRC = ['../src/oggvorbis/ogg/' + s for s in OGGSRC]
 
 CINDER_SOURCES = CINDERSRC + CINDERSRC_PARAMS + \
 		CINDERSRC_IP + CINDERSRC_GL + ANTTWEAKBARSRC + CINDERSRC_JSON + \
-		CINDERSRC_SVG + LIBTESS2SRC + LINEBREAKSRC + CINDERSRC_APP + \
+		CINDERSRC_SVG + GLLOADSRC + LIBTESS2SRC + LINEBREAKSRC + CINDERSRC_APP + \
 		VORBISSRC + OGGSRC + R8BRAINSRC + CINDERSRC_AUDIO
 
 if platform == 'darwin':
@@ -242,11 +253,13 @@ if platform == 'darwin':
 	# change compile flags for C and ObjC files
 	for i in range(len(CINDER_SOURCES)):
 		if (CINDER_SOURCES[i].endswith('.mm') or
-			basename(CINDER_SOURCES[i]) in ['App.cpp', 'Capture.cpp', 'QuickTime.cpp',
-				'Utilities.cpp', 'AppBasic.cpp', 'Display.cpp', 'Font.cpp', 'Renderer.cpp',
-				'TwMgr.cpp', 'TwPrecomp.cpp', 'LoadOGL.cpp', 'TwFonts.cpp', 'TwColors.cpp',
-				'TwOpenGL.cpp', 'TwBar.cpp', 'System.cpp', 'ImageSourceFileQuartz.cpp',
-				'MovieWriter.cpp', 'Clipboard.cpp', 'Window.cpp']):
+			basename(CINDER_SOURCES[i]) in ['App.cpp', 'Capture.cpp', 'Log.cpp',
+				'Utilities.cpp', 'AppBasic.cpp', 'Display.cpp', 'Font.cpp',
+				'Renderer.cpp', 'RendererGl.cpp', 'TwMgr.cpp', 'TwPrecomp.cpp',
+				'LoadOGL.cpp', 'LoadOGLCore.cpp', 'TwFonts.cpp',
+				'TwColors.cpp', 'TwOpenGL.cpp', 'TwOpenGLCore.cpp', 'TwBar.cpp', 'System.cpp',
+				'ImageSourceFileQuartz.cpp', 'MovieWriter.cpp', 'Clipboard.cpp', 'Window.cpp',
+				'Environment.cpp']):
 				CINDER_SOURCES[i] = env.Object(CINDER_SOURCES[i], CCFLAGS = CCFLAGS_OBJC)
 		elif CINDER_SOURCES[i].endswith('.c'):
 				CINDER_SOURCES[i] = env.Object(CINDER_SOURCES[i], CCFLAGS = CFLAGS)

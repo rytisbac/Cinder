@@ -1,0 +1,6 @@
+env = Environment()
+
+env['APP_TARGET'] = 'MotionBlurVelocityBufferApp'
+env['APP_SOURCES'] = ['MotionBlurVelocityBufferApp.cpp', 'BlurrableThings.cpp']
+
+SConscript('../../../../scons/SConscript', exports = 'env')

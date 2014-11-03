@@ -1,0 +1,7 @@
+env = Environment()
+
+env['APP_TARGET'] = 'TessellationBezierApp'
+env['APP_SOURCES'] = ['TessellationBezierApp.cpp']
+env['ASSETS'] = Split('bezier.frag bezier.tesc bezier.tese bezier.vert')
+
+SConscript('../../../../scons/SConscript', exports = 'env')

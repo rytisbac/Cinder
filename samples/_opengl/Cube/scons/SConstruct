@@ -1,0 +1,7 @@
+env = Environment()
+
+env['APP_TARGET'] = 'CubeApp'
+env['APP_SOURCES'] = ['CubeApp.cpp']
+env['ASSETS'] = ['shader.frag', 'shader.vert', 'texture.jpg']
+
+SConscript('../../../../scons/SConscript', exports = 'env')

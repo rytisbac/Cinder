@@ -1,0 +1,7 @@
+env = Environment()
+
+env['APP_TARGET'] = 'ParticleSphereGPUApp'
+env['APP_SOURCES'] = ['ParticleSphereGPUApp.cpp']
+env['ASSETS'] = ['particleUpdate.vs']
+
+SConscript('../../../../scons/SConscript', exports = 'env')
