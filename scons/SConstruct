@@ -210,9 +210,9 @@ else:
 if platform == 'darwin':
 	env['CC'] = 'clang'
 	env['CXX'] = 'clang++'
-	CFLAGS += ' -arch i386 -mmacosx-version-min=10.7 ' + \
+	CFLAGS += ' -arch i386 -mmacosx-version-min=10.8 ' + \
 		' -fpascal-strings '
-	LINKFLAGS += ' -arch i386 -mmacosx-version-min=10.7 '
+	LINKFLAGS += ' -arch i386 -mmacosx-version-min=10.8 '
 
 if platform != 'win32':
 	if DEBUG:
