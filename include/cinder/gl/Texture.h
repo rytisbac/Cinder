@@ -532,7 +532,7 @@ class Texture2d : public TextureBase {
 	friend class Texture2dCache;
 };
 
-#ifndef CINDER_GL_ES_2
+#if ! defined( CINDER_GL_ES_2 )
 class Texture3d : public TextureBase {
   public:
 	struct Format : public TextureBase::Format {
@@ -660,7 +660,7 @@ class Texture2dCache : public std::enable_shared_from_this<Texture2dCache>
 	int					mWidth;
 	int					mHeight;
 	Texture2d::Format	mFormat;
-	Surface8u			mIntermediateSurface;
+	Surface8uRef		mIntermediateSurface;
 
 	int										mNextId;
 	std::vector<std::pair<int,TextureRef>>	mTextures;
