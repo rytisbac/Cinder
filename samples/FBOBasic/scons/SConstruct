@@ -1,6 +1,0 @@
-env = Environment()
-
-env['APP_TARGET'] = 'FBOBasicApp'
-env['APP_SOURCES'] = ['FBOBasicApp.cpp']
-
-SConscript('../../../scons/SConscript', exports = 'env')

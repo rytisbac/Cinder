@@ -1,7 +1,0 @@
-env = Environment()
-
-env['APP_TARGET'] = 'GLSLLightingApp'
-env['APP_SOURCES'] = ['GLSLLightingApp.cpp', 'InfoPanel.cpp']
-env['RESOURCES'] = ['vert.glsl', 'frag.glsl']
-
-SConscript('../../../scons/SConscript', exports = 'env')
