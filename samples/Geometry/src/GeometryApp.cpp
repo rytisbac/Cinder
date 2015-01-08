@@ -147,7 +147,7 @@ void GeometryApp::update()
 void GeometryApp::draw()
 {
 	// Prepare for drawing.
-	gl::clear( Color::black() );
+	gl::clear();
 	gl::setMatrices( mCamera );
 	
 	// Draw the grid.
@@ -163,8 +163,8 @@ void GeometryApp::draw()
 		mPhongShader->uniform( "uTexturingMode", mTexturingMode );
 
 		// Rotate it slowly around the y-axis.
-		gl::pushModelView();
-		gl::rotate( float( getElapsedSeconds() / 5 ), 0.0f, 1.0f, 0.0f );
+		gl::ScopedModelMatrix matScope;
+		gl::rotate( float( getElapsedSeconds() / 5 ), 0, 1, 0 );
 
 		// Draw the normals.
 		if( mShowNormals && mPrimitiveNormalLines ) {
@@ -175,33 +175,22 @@ void GeometryApp::draw()
 		// Draw the primitive.
 		gl::ScopedColor colorScope( Color( 0.7f, 0.5f, 0.3f ) );
 
-		// (If transparent, render the back side first).
 		if( mViewMode == WIREFRAME ) {
-			gl::enableAlphaBlending();
-
-			gl::enable( GL_CULL_FACE );
-			gl::cullFace( GL_FRONT );
+			// We're using alpha blending, so render the back side first.
+			gl::ScopedAlphaBlend blendScope( false );
+			gl::ScopedFaceCulling cullScope( true, GL_FRONT );
 
 			mWireframeShader->uniform( "uBrightness", 0.5f );
 			mPrimitiveWireframe->draw();
-		}
 
-		// (Now render the front side.)
-		if( mViewMode == WIREFRAME ) {
+			// Now render the front side.
 			gl::cullFace( GL_BACK );
 
 			mWireframeShader->uniform( "uBrightness", 1.0f );
 			mPrimitiveWireframe->draw();
-			
-			gl::disable( GL_CULL_FACE );
-
-			gl::disableAlphaBlending();
 		}
 		else
 			mPrimitive->draw();
-		
-		// Done.
-		gl::popModelView();
 	}
 
 	// Render the parameter window.
@@ -333,7 +322,7 @@ void GeometryApp::createGeometry()
 			mPrimitiveSelected = CAPSULE;
 		case CAPSULE:
 			switch( mQualityCurrent ) {
-				case DEFAULT:	loadGeomSource( geom::Capsule( geom::Capsule() ) ); break;
+				case DEFAULT:	loadGeomSource( geom::Capsule() ); break;
 				case LOW:		loadGeomSource( geom::Capsule().subdivisionsAxis( 6 ).subdivisionsHeight( 1 ) ); break;
 				case HIGH:		loadGeomSource( geom::Capsule().subdivisionsAxis( 60 ).subdivisionsHeight( 20 ) ); break;
 			}
@@ -341,60 +330,60 @@ void GeometryApp::createGeometry()
 		case CONE:
 			switch( mQualityCurrent ) {
 				case DEFAULT:	loadGeomSource( geom::Cone() ); break;
-				case LOW:		loadGeomSource( geom::Cone( geom::Cone().subdivisionsAxis( 6 ).subdivisionsHeight( 1 ) ) ); break;
-				case HIGH:		loadGeomSource( geom::Cone( geom::Cone().subdivisionsAxis( 60 ).subdivisionsHeight( 60 ) ) ); break;
+				case LOW:		loadGeomSource( geom::Cone().subdivisionsAxis( 6 ).subdivisionsHeight( 1 ) ); break;
+				case HIGH:		loadGeomSource( geom::Cone().subdivisionsAxis( 60 ).subdivisionsHeight( 60 ) ); break;
 			}
 			break;
 		case CUBE:
 			switch( mQualityCurrent ) {
-				case DEFAULT:	loadGeomSource( geom::Cube( geom::Cube() ) ); break;
-				case LOW:		loadGeomSource( geom::Cube( geom::Cube().subdivisions( 1 ) ) ); break;
-				case HIGH:		loadGeomSource( geom::Cube( geom::Cube().subdivisions( 10 ) ) ); break;
+				case DEFAULT:	loadGeomSource( geom::Cube() ); break;
+				case LOW:		loadGeomSource( geom::Cube().subdivisions( 1 ) ); break;
+				case HIGH:		loadGeomSource( geom::Cube().subdivisions( 10 ) ); break;
 			}
 			break;
 		case CYLINDER:
 			switch( mQualityCurrent ) {
-				case DEFAULT:	loadGeomSource( geom::Cylinder( geom::Cylinder() ) ); break;
-				case LOW:		loadGeomSource( geom::Cylinder( geom::Cylinder().subdivisionsAxis( 6 ) ) ); break;
-				case HIGH:		loadGeomSource( geom::Cylinder( geom::Cylinder().subdivisionsAxis( 60 ).subdivisionsHeight( 20 ) ) ); break;
+				case DEFAULT:	loadGeomSource( geom::Cylinder() ); break;
+				case LOW:		loadGeomSource( geom::Cylinder().subdivisionsAxis( 6 ) ); break;
+				case HIGH:		loadGeomSource( geom::Cylinder().subdivisionsAxis( 60 ).subdivisionsHeight( 20 ) ); break;
 			}
 			break;
 		case HELIX:
 			switch( mQualityCurrent ) {
-				case DEFAULT:	loadGeomSource( geom::Helix( geom::Helix() ) ); break;
-				case LOW:		loadGeomSource( geom::Helix( geom::Helix().subdivisionsAxis( 12 ).subdivisionsHeight( 6 ) ) ); break;
-				case HIGH:		loadGeomSource( geom::Helix( geom::Helix().subdivisionsAxis( 60 ).subdivisionsHeight( 60 ) ) ); break;
+				case DEFAULT:	loadGeomSource( geom::Helix() ); break;
+				case LOW:		loadGeomSource( geom::Helix().subdivisionsAxis( 12 ).subdivisionsHeight( 6 ) ); break;
+				case HIGH:		loadGeomSource( geom::Helix().subdivisionsAxis( 60 ).subdivisionsHeight( 60 ) ); break;
 			}
 			break;
 		case ICOSAHEDRON:
-			loadGeomSource( geom::Icosahedron( geom::Icosahedron() ) );
+			loadGeomSource( geom::Icosahedron() );
 			break;
 		case ICOSPHERE:
 			switch( mQualityCurrent ) {
-				case DEFAULT:	loadGeomSource( geom::Icosphere( geom::Icosphere() ) ); break;
-				case LOW:		loadGeomSource( geom::Icosphere( geom::Icosphere().subdivisions( 1 ) ) ); break;
-				case HIGH:		loadGeomSource( geom::Icosphere( geom::Icosphere().subdivisions( 5 ) ) ); break;
+				case DEFAULT:	loadGeomSource( geom::Icosphere() ); break;
+				case LOW:		loadGeomSource( geom::Icosphere().subdivisions( 1 ) ); break;
+				case HIGH:		loadGeomSource( geom::Icosphere().subdivisions( 5 ) ); break;
 			}
 			break;
 		case SPHERE:
 			switch( mQualityCurrent ) {
-				case DEFAULT:	loadGeomSource( geom::Sphere( geom::Sphere() ) ); break;
-				case LOW:		loadGeomSource( geom::Sphere( geom::Sphere().subdivisions( 6 ) ) ); break;
-				case HIGH:		loadGeomSource( geom::Sphere( geom::Sphere().subdivisions( 60 ) ) ); break;
+				case DEFAULT:	loadGeomSource( geom::Sphere() ); break;
+				case LOW:		loadGeomSource( geom::Sphere().subdivisions( 6 ) ); break;
+				case HIGH:		loadGeomSource( geom::Sphere().subdivisions( 60 ) ); break;
 			}
 			break;
 		case TEAPOT:
 			switch( mQualityCurrent ) {
-				case DEFAULT:	loadGeomSource( geom::Teapot( geom::Teapot() ) ); break;
-				case LOW:		loadGeomSource( geom::Teapot( geom::Teapot().subdivisions( 2 ) ) ); break;
-				case HIGH:		loadGeomSource( geom::Teapot( geom::Teapot().subdivisions( 12 ) ) ); break;
+				case DEFAULT:	loadGeomSource( geom::Teapot() ); break;
+				case LOW:		loadGeomSource( geom::Teapot().subdivisions( 2 ) ); break;
+				case HIGH:		loadGeomSource( geom::Teapot().subdivisions( 12 ) ); break;
 			}
 			break;
 		case TORUS:
 			switch( mQualityCurrent ) {
-				case DEFAULT:	loadGeomSource( geom::Torus( geom::Torus() ) ); break;
-				case LOW:		loadGeomSource( geom::Torus( geom::Torus().subdivisionsAxis( 12 ).subdivisionsHeight( 6 ) ) ); break;
-				case HIGH:		loadGeomSource( geom::Torus( geom::Torus().subdivisionsAxis( 60 ).subdivisionsHeight( 60 ) ) ); break;
+				case DEFAULT:	loadGeomSource( geom::Torus() ); break;
+				case LOW:		loadGeomSource( geom::Torus().subdivisionsAxis( 12 ).subdivisionsHeight( 6 ) ); break;
+				case HIGH:		loadGeomSource( geom::Torus().subdivisionsAxis( 60 ).subdivisionsHeight( 60 ) ); break;
 			}
 			break;
 		case PLANE:
@@ -411,7 +400,7 @@ void GeometryApp::createGeometry()
 //			plane.axes( vec3( 0.70710678118, -0.70710678118, 0 ), vec3( 0.70710678118, 0.70710678118, 0 ) ); // dictate plane u/v axes directly
 //			plane.subdivisions( ivec2( 3, 10 ) ).size( vec2( 0.5f, 2.0f ) ).origin( vec3( 0, 1.0f, 0 ) ).normal( vec3( 0, 0, 1 ) ); // change the size and origin so that it is tall and thin, above the y axis.
 
-			loadGeomSource( geom::Plane( plane ) );
+			loadGeomSource( plane );
 			break;
 	}
 }
