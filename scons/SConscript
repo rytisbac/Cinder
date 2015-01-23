@@ -105,7 +105,7 @@ if platform == 'darwin':
 
 	CFLAGS += ' -arch i386 -mmacosx-version-min=10.8 ' + \
 		' -fpascal-strings '
-	LINKFLAGS += ' -arch i386 -all_load -mmacosx-version-min=10.8 '
+	LINKFLAGS += ' -arch i386 -mmacosx-version-min=10.8 '
 
 	if 'ICON' not in env:
 		ICON = '../samples/data/CinderApp.icns'

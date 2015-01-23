@@ -260,6 +260,8 @@ if platform == 'darwin':
 				CINDER_SOURCES[i] = env.Object(CINDER_SOURCES[i], CCFLAGS = CCFLAGS_OBJC)
 		elif CINDER_SOURCES[i].endswith('.c'):
 				CINDER_SOURCES[i] = env.Object(CINDER_SOURCES[i], CCFLAGS = CFLAGS)
+		else:
+				CINDER_SOURCES[i] = env.Object(CINDER_SOURCES[i], CCFLAGS = CCFLAGS)
 
 def CheckPKGConfig(context, version):
 	context.Message( 'Checking for pkg-config... ' )
@@ -293,7 +295,14 @@ if (not GetOption('clean')) and (platform == 'posix'):
 	env = conf.Finish()
 
 # build the library
-env.StaticLibrary(source = CINDER_SOURCES, target = TARGET)
+if platform == 'darwin':
+	# merge all objects to a master one, which is how XCode does it. scons uses ar/ranlib
+	# while XCode makes the lib with libtool, which can also cause different behaviour.
+	env['BUILDERS']['ObjectMerge'] = Builder(action = 'ld -r -arch i386 $SOURCES -o $TARGET')
+	master_obj = env.ObjectMerge(target = 'cinder-master.o', source = CINDER_SOURCES)
+	env.StaticLibrary(source = master_obj, target = TARGET)
+else:
+	env.StaticLibrary(source = CINDER_SOURCES, target = TARGET)
 
 if platform == 'win32':
 	env.Clean(TARGET, 'vc120.pdb')
