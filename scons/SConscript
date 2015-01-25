@@ -241,5 +241,5 @@ elif platform == 'win32':
 
 # run
 if platform == 'darwin':
-	env.AlwaysBuild(env.Alias('run', [TARGET + '.app'], 'open %s' % env.Dir(TARGET + '.app').abspath))
+	env.AlwaysBuild(env.Alias('run', [TARGET + '.app'], 'open "%s"' % env.Dir(TARGET + '.app').abspath))
 
