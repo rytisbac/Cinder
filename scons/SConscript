@@ -14,6 +14,7 @@ INCLUDES += ['../include',
 		'../boost',
 		'../include/rapidxml',
 		'../include/cinder/app',
+		'../include/jsoncpp',
 		'../src/AntTweakBar',
 		'../src/libtess2']
 

@@ -72,7 +72,7 @@ CINDERSRC_AUDIO = ['../src/cinder/audio/' + s for s in CINDERSRC_AUDIO]
 CINDERSRC_COCOA = Split('CinderCocoa.mm')
 CINDERSRC_COCOA = ['../src/cinder/cocoa/' + s for s in CINDERSRC_COCOA]
 
-CINDERSRC_JSON = Split('json_reader.cpp json_value.cpp json_writer.cpp')
+CINDERSRC_JSON = ['jsoncpp.cpp']
 CINDERSRC_JSON = ['../src/jsoncpp/' + s for s in CINDERSRC_JSON]
 
 if platform == 'darwin':
@@ -162,6 +162,7 @@ INCLUDES = ['../include',
 		'../boost',
 		'../include/rapidxml',
 		'../include/cinder/app',
+		'../include/jsoncpp',
 		'../include/oggvorbis',
 		'../src/AntTweakBar',
 		'../src/libtess2',
