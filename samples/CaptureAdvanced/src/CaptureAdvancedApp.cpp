@@ -22,7 +22,7 @@ class CaptureApp : public AppBasic {
 	vector<CaptureRef>		mCaptures;
 	vector<gl::TextureRef>	mTextures;
 	vector<gl::TextureRef>	mNameTextures;
-	vector<Surface>			mRetainedSurfaces;
+	vector<SurfaceRef>		mRetainedSurfaces;
 };
 
 void CaptureApp::setup()
@@ -81,8 +81,12 @@ void CaptureApp::update()
 {
 	for( vector<CaptureRef>::iterator cIt = mCaptures.begin(); cIt != mCaptures.end(); ++cIt ) {
 		if( (*cIt)->checkNewFrame() ) {
-			Surface8u surf = (*cIt)->getSurface();
-			mTextures[cIt - mCaptures.begin()] = gl::Texture::create( surf );
+			Surface8uRef surf = (*cIt)->getSurface();
+			// Capture images come back as top-down, and it's more efficient to keep them that way
+			if( ! mTextures[cIt - mCaptures.begin()] )
+				mTextures[cIt - mCaptures.begin()] = gl::Texture2d::create( *surf, gl::Texture2d::Format().loadTopDown() );
+			else
+				mTextures[cIt - mCaptures.begin()]->update( *surf );
 		}
 	}
 }

@@ -44,8 +44,6 @@
 			#import <UIKit/UIKit.h>
 			#import <CoreFoundation/CoreFoundation.h>
 		#endif
-	#else
-		#include <ApplicationServices/ApplicationServices.h>
 	#endif
 	#if defined __OBJC__
 		@class CinderView;
@@ -67,11 +65,9 @@ namespace cinder {
 class Timeline;
 } // namespace cinder
 
-#if !defined( CINDER_WINRT )
-namespace boost { namespace asio {
+namespace asio {
 class io_service;
-} } // namespace boost::asio
-#endif
+} // namespace asio
 
 namespace cinder { namespace app { 
 
@@ -453,8 +449,8 @@ class App {
 	static bool		isPrimaryThread();
 
 #if !defined( CINDER_WINRT )
-	//! Returns a reference to the App's boost::asio::io_service()
-	boost::asio::io_service&	io_service() { return *mIo; }
+	//! Returns a reference to the App's asio::io_service()
+	asio::io_service&	io_service() { return *mIo; }
 #endif //!defined( CINDER_WINRT )
 
 	
@@ -547,10 +543,10 @@ class App {
 
 	signals::signal<void()>		mSignalUpdate, mSignalShutdown, mSignalWillResignActive, mSignalDidBecomeActive;
 
-#if !defined( CINDER_WINRT )
-	std::shared_ptr<boost::asio::io_service>	mIo;
-	std::shared_ptr<void>						mIoWork; // boost::asio::io_service::work, but can't fwd declare member class
-#endif // !defined( CINDER_WINRT )
+#if ! defined( CINDER_WINRT )
+	std::shared_ptr<asio::io_service>	mIo;
+	std::shared_ptr<void>				mIoWork; // asio::io_service::work, but can't fwd declare member class
+#endif // ! defined( CINDER_WINRT )
 
 	// have we already setup the default path to assets?
 	bool						mAssetDirectoriesInitialized;

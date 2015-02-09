@@ -28,7 +28,7 @@
 	#endif
 #endif
 
-#define GLM_FORCE_RADIANS
+#define GLM_FORCE_SIZE_FUNC
 #include "glm/fwd.hpp"
 
 #include <cstdint>
@@ -42,6 +42,8 @@
 //  CINDER_VERSION / 100000 is the major version
 #define CINDER_VERSION		900
 #define CINDER_VERSION_STR	"9.0.0.dev"
+
+#define ASIO_STANDALONE 1
 
 namespace cinder {
 using std::int8_t;
