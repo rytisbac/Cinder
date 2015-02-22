@@ -208,9 +208,9 @@ else:
 if platform == 'darwin':
 	env['CC'] = 'clang'
 	env['CXX'] = 'clang++'
-	CFLAGS += ' -arch i386 -mmacosx-version-min=10.8 ' + \
+	CFLAGS += ' -arch i386 -arch x86_64 -mmacosx-version-min=10.8 ' + \
 		' -fpascal-strings '
-	LINKFLAGS += ' -arch i386 -mmacosx-version-min=10.8 '
+	LINKFLAGS += ' -arch i386 -arch x86_64 -mmacosx-version-min=10.8 '
 
 if platform != 'win32':
 	if DEBUG:
@@ -297,11 +297,20 @@ if (not GetOption('clean')) and (platform == 'posix'):
 
 # build the library
 if platform == 'darwin':
+	TARGET32 = TARGET + '-i386'
+	TARGET64 = TARGET + '-x86_64'
 	# merge all objects to a master one, which is how XCode does it. scons uses ar/ranlib
 	# while XCode makes the lib with libtool, which can also cause different behaviour.
-	env['BUILDERS']['ObjectMerge'] = Builder(action = 'ld -r -arch i386 $SOURCES -o $TARGET')
-	master_obj = env.ObjectMerge(target = 'cinder-master.o', source = CINDER_SOURCES)
-	env.StaticLibrary(source = master_obj, target = TARGET)
+	env['BUILDERS']['ObjectMerge32'] = Builder(action = 'ld -r -arch i386 $SOURCES -o $TARGET')
+	master_obj32 = env.ObjectMerge32(target = 'cinder-master-i386.o', source = CINDER_SOURCES)
+	static_lib32 = env.StaticLibrary(source = master_obj32, target = TARGET32)
+	env['BUILDERS']['ObjectMerge64'] = Builder(action = 'ld -r -arch x86_64 $SOURCES -o $TARGET')
+	master_obj64 = env.ObjectMerge64(target = 'cinder-master-x86_64.o', source = CINDER_SOURCES)
+	static_lib64 = env.StaticLibrary(source = master_obj64, target = TARGET64)
+	env['BUILDERS']['UniversalStaticLibrary'] = Builder(action =
+			'lipo -create -arch i386 lib' + TARGET32 + '.a -arch x86_64 lib' + TARGET64 + '.a ' \
+				' -output $TARGET')
+	env.UniversalStaticLibrary(target = 'lib' + TARGET + '.a', source = [static_lib32, static_lib64])
 else:
 	env.StaticLibrary(source = CINDER_SOURCES, target = TARGET)
 

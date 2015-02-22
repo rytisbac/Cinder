@@ -104,9 +104,9 @@ if platform == 'darwin':
 	env['CC'] = 'clang'
 	env['CXX'] = 'clang++'
 
-	CFLAGS += ' -arch i386 -mmacosx-version-min=10.8 ' + \
+	CFLAGS += ' -mmacosx-version-min=10.8 ' + \
 		' -fpascal-strings '
-	LINKFLAGS += ' -arch i386 -mmacosx-version-min=10.8 '
+	LINKFLAGS += ' -mmacosx-version-min=10.8 '
 
 	if 'ICON' not in env:
 		ICON = '../samples/data/CinderApp.icns'
@@ -138,7 +138,7 @@ env.Replace(LINKFLAGS = Split(LINKFLAGS))
 if platform == 'darwin':
 	env.Append(FRAMEWORKS = Split('Accelerate AppKit ApplicationServices AudioUnit ' + \
 		'AudioToolbox AVFoundation Cocoa CoreAudio CoreData CoreGraphics ' + \
-		'CoreMedia CoreVideo Foundation OpenGl QuickTime QTKit '))
+		'CoreMedia CoreVideo Foundation OpenGl QTKit '))
 
 	# change compile flags for ObjC files
 	CCFLAGS_OBJC = CFLAGS + ' -x objective-c++ -fvisibility-inlines-hidden ' + \
