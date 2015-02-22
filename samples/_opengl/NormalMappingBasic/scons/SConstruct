@@ -1,0 +1,7 @@
+env = Environment()
+
+env['APP_TARGET'] = 'NormalMappingBasicApp'
+env['APP_SOURCES'] = ['NormalMappingBasicApp.cpp']
+env['ASSETS'] = Split('normalMap.png diffuseMap.jpg shader.vert shader.frag')
+
+SConscript('../../../../scons/SConscript', exports = 'env')
