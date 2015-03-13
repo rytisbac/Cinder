@@ -693,7 +693,7 @@ class BSpline : public Source {
 
 //////////////////////////////////////////////////////////////////////////////////////
 // Modifiers
-//! "Bakes" a mat4 transformation into the positions and normals of a geom::Source
+//! "Bakes" a mat4 transformation into the positions, normals and tangents of a geom::Source
 class Transform : public Modifier {
   public:
 	//! Does not currently support a projection matrix (i.e. doesn't divide by 'w' )
@@ -710,6 +710,29 @@ class Transform : public Modifier {
 	void				process( SourceModsContext *ctx, const AttribSet &requestedAttribs ) const override;
 	
 	mat4		mTransform;
+};
+
+//! "Bakes" a translation into the positions, normals and tangents of a geom::Source
+class Translate : public Transform {
+  public:
+	Translate( const vec3 &v ) : Transform( glm::translate( v ) ) {}
+	Translate( float x, float y, float z ) : Transform( glm::translate( vec3( x, y, z ) ) ) {}
+	Translate( const vec2 &v ) : Transform( glm::translate( vec3( v, 0 ) ) ) {}
+	Translate( float x, float y ) : Transform( glm::translate( vec3( x, y, 0 ) ) ) {}
+};
+
+//! "Bakes" a scale into the positions, normals and tangents of a geom::Source
+class Scale : public Transform {
+  public:
+	Scale( const vec3 &v ) : Transform( glm::scale( v ) ) {}
+	Scale( float x, float y, float z ) : Transform( glm::scale( vec3( x, y, z ) ) ) {}
+	Scale( float s ) : Transform( glm::scale( vec3( s ) ) ) {}
+};
+
+//! "Bakes" a rotation into the positions, normals and tangents of a geom::Source
+class Rotate : public Transform {
+  public:
+	Rotate( const glm::quat &q ) : Transform( glm::toMat4( q ) ) {}
 };
 
 //! Twists a geom::Source around a given axis
@@ -965,8 +988,8 @@ class SourceModsContext : public Target {
 
 class SourceModsBase : public Source {
   public:
-	SourceModsBase( const Source *sourceBase )
-		: mSourceBase( sourceBase ), mVariablesCached( false )
+	SourceModsBase()
+		: mVariablesCached( false )
 	{}
 
 	// geom::Source methods
@@ -977,9 +1000,10 @@ class SourceModsBase : public Source {
 	AttribSet	getAvailableAttribs() const override;
 	void		loadInto( Target *target, const AttribSet &requestedAttribs ) const override;
 	
-	void	addModifier( const Modifier &modifier );
+	void											addModifier( const Modifier &modifier );
+	const std::vector<std::unique_ptr<Modifier>>&	getModifiers() const { return mModifiers; }
 	
-	const Source*		getSource() const { return mSourceBase; }
+	virtual const Source*		getSource() const = 0;
 
   protected:
 	void		cacheVariables() const;
@@ -987,11 +1011,14 @@ class SourceModsBase : public Source {
 	const Source* 							mSourceBase;
 	std::vector<std::unique_ptr<Modifier>>	mModifiers;
 	
-	mutable bool				mVariablesCached;
+	mutable bool							mVariablesCached;
 	mutable std::vector<Modifier::Params>	mParamsStack;
 	
 	friend class SourceModsContext;
 };
+
+template<typename T>
+class SourceMods;
 
 //! In general you should not return this as the result of a function or even instantiate it directly
 //! Similar to SourceMods<> but stores a pointer to the SOURCE rather than a copy of it
@@ -999,18 +1026,25 @@ template<typename SOURCE>
 class SourceModsPtr : public SourceModsBase {
   public:
 	SourceModsPtr( const SOURCE *srcPtr )
-		: SourceModsBase( srcPtr ), mSrcPtr( srcPtr )
+		: SourceModsBase(), mSrcPtr( srcPtr )
 	{}
 
 	SourceModsPtr( const SourceModsPtr<SOURCE> &rhs )
-		: SourceModsBase( rhs.mSrcPtr ), mSrcPtr( rhs.mSrcPtr )
+		: SourceModsBase(), mSrcPtr( rhs.mSrcPtr )
 	{
 		for( const auto &rhsMod : rhs.mModifiers )
 			mModifiers.push_back( std::unique_ptr<Modifier>( rhsMod->clone() ) );
 	}
 
+	SourceModsPtr( const SOURCE* srcPtr, const std::vector<std::unique_ptr<Modifier>>& srcModifiers )
+		: SourceModsBase(), mSrcPtr( srcPtr )
+	{
+		for( const auto &rhsMod : srcModifiers )
+			mModifiers.push_back( std::unique_ptr<Modifier>( rhsMod->clone() ) );
+	}
+	
 	SourceModsPtr( SourceModsPtr<SOURCE> &&rhs )
-		: SourceModsBase( rhs.mSrcPtr ), mSrcPtr( rhs.mSrcPtr )
+		: SourceModsBase(), mSrcPtr( rhs.mSrcPtr )
 	{
 		for( auto &rhsMod : rhs.mModifiers )
 			mModifiers.push_back( std::move( rhsMod ) );
@@ -1038,6 +1072,8 @@ class SourceModsPtr : public SourceModsBase {
 		return *this;
 	}
 	
+	const Source*		getSource() const override { return mSrcPtr; }
+	
 	const SOURCE		*mSrcPtr;
 };
 
@@ -1045,29 +1081,29 @@ template<typename SOURCE>
 class SourceMods : public SourceModsBase {
   public:
 	SourceMods( const SOURCE &src )
-		: SourceModsBase( &mSrc ), mSrc( src )
+		: SourceModsBase(), mSrc( src )
 	{}
 	
 	SourceMods( SOURCE &&src )
-		: SourceModsBase( &mSrc ), mSrc( std::move( src ) )
+		: SourceModsBase(), mSrc( std::move( src ) )
 	{}
 
 	SourceMods( const SourceMods<SOURCE> &rhs )
-		: SourceModsBase( &mSrc ), mSrc( rhs.mSrc )
+		: SourceModsBase(), mSrc( rhs.mSrc )
 	{
 		for( const auto &rhsMod : rhs.mModifiers )
 			mModifiers.push_back( std::unique_ptr<Modifier>( rhsMod->clone() ) );
 	}
 
 	SourceMods( SourceMods<SOURCE> &&rhs )
-		: SourceModsBase( &mSrc ), mSrc( std::move( rhs.mSrc ) )
+		: SourceModsBase(), mSrc( std::move( rhs.mSrc ) )
 	{
 		for( auto &rhsMod : rhs.mModifiers )
 			mModifiers.push_back( std::move( rhsMod ) );
 	}
 
 	SourceMods( const SourceModsPtr<SOURCE> &rhs )
-		: SourceModsBase( &mSrc ), mSrc( *rhs.mSrcPtr )
+		: SourceModsBase(), mSrc( *rhs.mSrcPtr )
 	{
 		for( const auto &rhsMod : rhs.mModifiers )
 			mModifiers.push_back( std::unique_ptr<Modifier>( rhsMod->clone() ) );
@@ -1095,6 +1131,8 @@ class SourceMods : public SourceModsBase {
 		return *this;
 	}
 	
+	const Source*		getSource() const override { return &mSrc; }
+	
 	SOURCE		mSrc;
 };
 
@@ -1103,7 +1141,7 @@ class SourceMods : public SourceModsBase {
 template<typename SOURCE>
 SourceModsPtr<SOURCE> operator>>( SourceMods<SOURCE> &sourceMod, const Modifier &modifier )
 {
-	SourceModsPtr<SOURCE> result( &sourceMod.mSrc );
+	SourceModsPtr<SOURCE> result( &sourceMod.mSrc, sourceMod.getModifiers() );
 	result.addModifier( modifier );
 	return result;
 }
@@ -1131,9 +1169,9 @@ SourceModsPtr<SOURCE>&& operator>>( SourceModsPtr<SOURCE> &&sourceMod, const Mod
 }
 
 template<typename SOURCE>
-SourceModsPtr<SOURCE> operator>>( const SOURCE &source, const Modifier &modifier )
+SourceMods<SOURCE> operator>>( const SOURCE &source, const Modifier &modifier )
 {
-	SourceModsPtr<SOURCE> result( &source );
+	SourceMods<SOURCE> result( source );
 	result.addModifier( modifier );
 	return result;
 }
