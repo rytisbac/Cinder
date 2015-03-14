@@ -48,7 +48,7 @@ else:
 LIBPATH += ['.']
 
 if platform == 'darwin':
-	LIBS += [File(LIBPATH[0] + s) for s in Split('libboost_date_time.a libboost_system.a ' + \
+	LIBS += [File(LIBPATH[0] + s) for s in Split('libboost_system.a ' + \
 			'libboost_filesystem.a libz.a')]
 elif platform == 'posix':
 	for lib in ['x11', 'gl', 'libcurl', 'zlib']:

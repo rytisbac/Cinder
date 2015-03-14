@@ -20,7 +20,7 @@ CINDERSRC = Split('Area.cpp AxisAlignedBox.cpp Base64.cpp BSpline.cpp ' + \
 		'GeomIo.cpp ImageIo.cpp ImageSourceFileRadiance.cpp Json.cpp ' + \
 		'Log.cpp Matrix.cpp MatrixStack.cpp ObjLoader.cpp ' + \
 		'Path2d.cpp Perlin.cpp Plane.cpp PolyLine.cpp Rand.cpp Ray.cpp Rect.cpp ' + \
-		'Serial.cpp Shape2d.cpp Sphere.cpp Stream.cpp Surface.cpp System.cpp ' + \
+		'Serial.cpp Shape2d.cpp Signals.cpp Sphere.cpp Stream.cpp Surface.cpp System.cpp ' + \
 		'Text.cpp Timer.cpp Triangulate.cpp TriMesh.cpp Url.cpp Xml.cpp ' + \
 		'Capture.cpp Display.cpp Font.cpp ' + \
 		'Timeline.cpp TimelineItem.cpp Tween.cpp ' + \
@@ -92,22 +92,21 @@ CINDERSRC_GL = Split('Batch.cpp BufferObj.cpp BufferTexture.cpp ConstantStrings.
 	'VboMesh.cpp gl.cpp')
 CINDERSRC_GL = ['../src/cinder/gl/' + s for s in CINDERSRC_GL]
 
-CINDERSRC_APP = Split('App.cpp AppBasic.cpp ' + \
-		'KeyEvent.cpp Renderer.cpp Window.cpp')
-if platform == 'darwin':
-	CINDERSRC_APP += Split('AppImplCocoaBasic.mm ' + \
-			'AppImplCocoaRendererGl.mm AppImplCocoaRendererQuartz.mm ' + \
-			'CinderView.mm RendererGl.cpp')
-elif platform == 'posix':
-	CINDERSRC_APP += Split('AppImplLinux.cpp AppImplLinuxBasic.cpp ' + \
-			'AppImplLinuxRendererGl.cpp')
-elif platform == 'win32':
-	CINDERSRC_APP += Split('AppImplMsw.cpp AppImplMswBasic.cpp ' + \
-			'AppImplMswRendererGdi.cpp ' + \
-			'AppImplMswRendererGl.cpp AppImplMswScreenSaver.cpp ' + \
-			'RendererGl.cpp')
-
+CINDERSRC_APP = Split('AppBase.cpp KeyEvent.cpp ' + \
+		'Platform.cpp Renderer.cpp RendererGl.cpp Window.cpp')
 CINDERSRC_APP = ['../src/cinder/app/' + s for s in CINDERSRC_APP]
+if platform == 'darwin':
+	CINDERSRC_APP_COCOA = Split('AppCocoaView.mm AppImplMac.mm ' + \
+			'AppMac.cpp CinderViewMac.mm PlatformCocoa.cpp ' + \
+			'RendererImpl2dMacQuartz.mm RendererImplGlMac.mm')
+	CINDERSRC_APP_COCOA = ['../src/cinder/app/cocoa/' + s for s in CINDERSRC_APP_COCOA]
+	CINDERSRC_APP += CINDERSRC_APP_COCOA
+elif platform == 'win32':
+	CINDERSRC_APP_MSW += Split('AppImplMsw.cpp AppImplMswBasic.cpp ' + \
+			'RendererImpl2dGdi.cpp RendererImplGlAngle.cpp ' + \
+			'RendererImplGlMsw.cpp ')
+	CINDERSRC_APP_MSW = ['../src/cinder/app/msw/' + s for s in CINDERSRC_APP_MSW]
+	CINDERSRC_APP += CINDERSRC_APP_MSW
 
 CINDERSRC_MSW = Split('CinderMsw.cpp CinderMswGdiPlus.cpp StackWalker.cpp')
 CINDERSRC_MSW = ['../src/cinder/msw/' + s for s in CINDERSRC_MSW]
@@ -257,7 +256,7 @@ if platform == 'darwin':
 				'LoadOGL.cpp', 'LoadOGLCore.cpp', 'TwFonts.cpp',
 				'TwColors.cpp', 'TwOpenGL.cpp', 'TwOpenGLCore.cpp', 'TwBar.cpp', 'System.cpp',
 				'ImageSourceFileQuartz.cpp', 'MovieWriter.cpp', 'Clipboard.cpp', 'Window.cpp',
-				'Environment.cpp']):
+				'Environment.cpp', 'PlatformCocoa.cpp', 'AppMac.cpp']):
 				CINDER_SOURCES[i] = env.Object(CINDER_SOURCES[i], CCFLAGS = CCFLAGS_OBJC)
 		elif CINDER_SOURCES[i].endswith('.c'):
 				CINDER_SOURCES[i] = env.Object(CINDER_SOURCES[i], CCFLAGS = CFLAGS)
