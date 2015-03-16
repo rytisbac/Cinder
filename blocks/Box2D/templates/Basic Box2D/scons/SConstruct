@@ -1,0 +1,11 @@
+env = Environment()
+
+env['APP_TARGET'] = 'BasicBox2D'
+env['APP_SOURCES'] = ['_TBOX_PREFIX_App.cpp']
+env['PLIST'] = '#../../../../../../../samples/BasicApp/xcode/Info.plist'
+env['DEBUG'] = 0
+
+env = SConscript('../../../scons/SConscript', exports = 'env')
+
+SConscript('../../../../../scons/SConscript', exports = 'env')
+

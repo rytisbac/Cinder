@@ -1,0 +1,44 @@
+Import('env')
+
+_INCLUDES = [Dir('../src').abspath]
+
+_COLLISION_SOURCES = Split('b2BroadPhase.cpp b2CollideCircle.cpp ' + \
+			'b2CollideEdge.cpp b2CollidePolygon.cpp b2Collision.cpp ' + \
+			'b2Distance.cpp b2DynamicTree.cpp b2TimeOfImpact.cpp')
+_COLLISION_SOURCES = [File('../src/Box2D/Collision/' + s).abspath for s in _COLLISION_SOURCES]
+
+_SHAPES_SOURCES = Split('b2ChainShape.cpp b2CircleShape.cpp ' + \
+			'b2EdgeShape.cpp b2PolygonShape.cpp')
+_SHAPES_SOURCES = [File('../src/Box2D/Collision/Shapes/' + s).abspath for s in _SHAPES_SOURCES]
+
+_COMMON_SOURCES = Split('b2BlockAllocator.cpp b2Draw.cpp b2Math.cpp ' + \
+			'b2Settings.cpp b2StackAllocator.cpp b2Timer.cpp')
+_COMMON_SOURCES = [File('../src/Box2D/Common/' + s).abspath for s in _COMMON_SOURCES]
+
+_DYNAMICS_SOURCES = Split('b2Body.cpp b2ContactManager.cpp b2Fixture.cpp ' + \
+			'b2Island.cpp b2World.cpp b2WorldCallbacks.cpp')
+_DYNAMICS_SOURCES = [File('../src/Box2D/Dynamics/' + s).abspath for s in _DYNAMICS_SOURCES]
+
+_CONTACTS_SOURCES = Split('b2ChainAndCircleContact.cpp b2ChainAndPolygonContact.cpp ' + \
+			'b2CircleContact.cpp b2Contact.cpp b2ContactSolver.cpp ' + \
+			'b2EdgeAndCircleContact.cpp b2EdgeAndPolygonContact.cpp ' + \
+			'b2PolygonAndCircleContact.cpp b2PolygonContact.cpp')
+_CONTACTS_SOURCES = [File('../src/Box2D/Dynamics/Contacts/' + s).abspath for s in _CONTACTS_SOURCES]
+
+_JOINTS_SOURCES = Split('b2DistanceJoint.cpp b2FrictionJoint.cpp b2GearJoint.cpp ' + \
+			'b2Joint.cpp b2MouseJoint.cpp b2PrismaticJoint.cpp ' + \
+			'b2PulleyJoint.cpp b2RevoluteJoint.cpp b2RopeJoint.cpp ' + \
+			'b2WeldJoint.cpp b2WheelJoint.cpp')
+_JOINTS_SOURCES = [File('../src/Box2D/Dynamics/Joints/' + s).abspath for s in _JOINTS_SOURCES]
+
+_ROPE_SOURCES = ['b2Rope.cpp']
+_ROPE_SOURCES = [File('../src/Box2D/Rope/' + s).abspath for s in _ROPE_SOURCES]
+
+_SOURCES = _COLLISION_SOURCES + _SHAPES_SOURCES + _COMMON_SOURCES + \
+		_DYNAMICS_SOURCES + _CONTACTS_SOURCES + _JOINTS_SOURCES + \
+		_ROPE_SOURCES
+
+env.Append(APP_SOURCES = _SOURCES)
+env.Append(CPPPATH = _INCLUDES)
+
+Return('env')
