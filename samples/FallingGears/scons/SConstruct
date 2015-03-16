@@ -1,0 +1,11 @@
+env = Environment()
+
+env['APP_TARGET'] = 'FallingGearsApp'
+env['APP_SOURCES'] = Split('AudioController.cpp Box2dUtils.cpp Config.cpp ' + \
+	'FallingGearsApp.cpp SceneController.cpp SceneObjects.cpp Synths.cpp' )
+env['ASSETS'] = Split('background.jpg config.json gear1.png gear2.png ' + \
+	'gear3.png gear4.png')
+
+env = SConscript('../../../blocks/Box2D/scons/SConscript', exports = 'env')
+
+SConscript('../../../scons/SConscript', exports = 'env')
