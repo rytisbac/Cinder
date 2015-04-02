@@ -69,6 +69,8 @@ std::string attribToString( Attrib attrib );
 std::string primitiveToString( Primitive primitive );
 //! Utility function for copying attribute data. Does the right thing to convert \a srcDimensions to \a dstDimensions. \a dstStrideBytes of \c 0 implies tightly packed data.
 void copyData( uint8_t srcDimensions, const float *srcData, size_t numElements, uint8_t dstDimensions, size_t dstStrideBytes, float *dstData );
+//! Utility function for copying attribute data. Does the right thing to convert \a srcDimensions to \a dstDimensions. Stride of \c 0 implies tightly packed data.
+void copyData( uint8_t srcDimensions, size_t srcStrideBytes, const float *srcData, size_t numElements, uint8_t dstDimensions, size_t dstStrideBytes, float *dstData );
 //! Utility function for calculating tangents and bitangents from indexed geometry. \a resultBitangents may be NULL if not needed.
 void calculateTangents( size_t numIndices, const uint32_t *indices, size_t numVertices, const vec3 *positions, const vec3 *normals, const vec2 *texCoords, std::vector<vec3> *resultTangents, std::vector<vec3> *resultBitangents );
 //! Utility function for calculating tangents and bitangents from indexed geometry and 3D texture coordinates. \a resultBitangents may be NULL if not needed.
@@ -208,6 +210,8 @@ class Rect : public Source {
 	Rect( const Rectf &r );
 
 	Rect&		rect( const Rectf &r );
+	//! Enables default colors. Disabled by default.
+	Rect&		colors( bool enable = true ) { mHasColors = enable; return *this; }
 	//! Enables COLOR attrib and specifies corner values in clockwise order starting with the upper-left
 	Rect&		colors( const ColorAf &upperLeft, const ColorAf &upperRight, const ColorAf &lowerRight, const ColorAf &lowerLeft );
 	//! Enables TEX_COORD_0 attrib and specifies corner values in clockwise order starting with the upper-left
@@ -221,10 +225,12 @@ class Rect : public Source {
 	void		loadInto( Target *target, const AttribSet &requestedAttribs ) const override;
 
   protected:
+	void					setDefaultColors();
+	void					setDefaultTexCoords();
 	std::array<vec2,4>		mPositions, mTexCoords;
 	std::array<ColorAf,4>	mColors;
-
-	static const float	sNormals[4*3], sTangents[4*3];
+	bool					mHasColors;
+	static const float		sNormals[4*3], sTangents[4*3];
 };
 
 class Cube : public Source {
@@ -232,11 +238,9 @@ class Cube : public Source {
 	Cube();
 
 	//! Enables default colors. Disabled by default.
-	Cube&			colors();
+	Cube&			colors( bool enable = true ) { mHasColors = enable; return *this; }
 	//! Enables per-face colors ordered { +X, -X, +Y, -Y, +Z, -Z }. Colors are disabled by default.
 	Cube&			colors( const ColorAf &posX, const ColorAf &negX, const ColorAf &posY, const ColorAf &negY, const ColorAf &posZ, const ColorAf &negZ );
-	//! Disables colors. Disabled by default.
-	Cube&			disableColors();
 
 	Cube&			subdivisions( int sub ) { mSubdivisions = ivec3( std::max<int>( 1, sub ) ); return *this; }
 	Cube&			subdivisionsX( int sub ) { mSubdivisions.x = std::max<int>( 1, sub ); return *this; }
@@ -286,6 +290,9 @@ class Icosahedron : public Source {
 class Icosphere : public Source {
   public:
 	Icosphere();
+
+	// Enables colors. Disabled by default.
+	Icosphere&	colors( bool enable = true ) { mHasColors = enable; return *this; }
 
 	Icosphere&	subdivisions( int sub ) { mSubdivision = (sub > 0) ? (sub + 1) : 1; mCalculationsCached = false; return *this; }
 
@@ -371,7 +378,7 @@ class Sphere : public Source {
   public:
 	Sphere();
 
-	Sphere&		colors() { mHasColors = true; return *this; }
+	Sphere&		colors( bool enable = true ) { mHasColors = enable; return *this; }
 	Sphere&		center( const vec3 &center ) { mCenter = center; return *this; }
 	Sphere&		radius( float radius ) { mRadius = radius; return *this; }
 	//! Specifies the number of segments, which determines the roundness of the sphere.
@@ -385,7 +392,7 @@ class Sphere : public Source {
 	void		loadInto( Target *target, const AttribSet &requestedAttribs ) const override;
 
   protected:
-	void			numRingsAndSegments( int *numRings, int *numSegments ) const;
+	void		numRingsAndSegments( int *numRings, int *numSegments ) const;
 
 	vec3		mCenter;
 	float		mRadius;
@@ -398,7 +405,7 @@ class Capsule : public Source {
 	Capsule();
 
 	//! Enables colors. Disabled by default.
-	Capsule&		colors() { mHasColors = true; return *this; }
+	Capsule&		colors( bool enable = true ) { mHasColors = enable; return *this; }
 	Capsule&		center( const vec3 &center ) { mCenter = center; return *this; }
 	//! Specifies the number of radial subdivisions, which determines the roundness of the capsule. Defaults to \c 6.
 	Capsule&		subdivisionsAxis( int subdiv ) { mSubdivisionsAxis = subdiv; updateCounts(); return *this; }
@@ -496,6 +503,9 @@ class Cylinder : public Source {
   public:
 	Cylinder();
 
+	//! Enables colors. Disabled by default.
+	Cylinder&	colors( bool enable = true ) { mHasColors = enable; return *this; }
+
 	//! Specifices the base of the Cylinder.
 	Cylinder&	origin( const vec3 &origin ) { mOrigin = origin; updateCounts(); return *this; }
 	//! Specifies the number of radial subdivisions, which determines the roundness of the Cylinder. Defaults to \c 18.
@@ -510,8 +520,6 @@ class Cylinder : public Source {
 	Cylinder&	direction( const vec3 &direction ) { mDirection = normalize( direction ); return *this; }
 	//! Conveniently sets origin, height and direction so that the center of the base is \a from and the center of the apex is \a to.
 	Cylinder&	set( const vec3 &from, const vec3 &to );
-	//! Enables colors. Disabled by default.
-	Cylinder&	colors() { mHasColors = true; return *this; }
 
 	size_t		getNumVertices() const override;
 	size_t		getNumIndices() const override;
@@ -539,7 +547,11 @@ class Cylinder : public Source {
 
 class Cone : public Cylinder {
   public:
-	Cone() { radius( 1.0f, 0.0f ); }
+	Cone()
+	{ radius( 1.0f, 0.0f ); }
+
+	//! Enables colors. Disabled by default.
+	Cone&	colors( bool enable = true ) { mHasColors = enable; return *this; }
 
 	Cone&	origin( const vec3 &origin ) { Cylinder::origin( origin ); return *this; }
 	//! Specifies the number of radial subdivisions, which determines the roundness of the Cone. Defaults to \c 18.
@@ -560,8 +572,6 @@ class Cone : public Cylinder {
 	Cone&	direction( const vec3 &direction ) { Cylinder::direction( direction ); return *this; }
 	//! Conveniently sets origin, height and direction.
 	Cone&	set( const vec3 &from, const vec3 &to ) { Cylinder::set( from, to ); return *this; }
-	//! Enables colors. Disabled by default.
-	Cone&	colors() { mHasColors = true; return *this; }
 };
 
 //! Defaults to a plane on the z axis, origin = [0, 0, 0], normal = [0, 1, 0]
@@ -959,7 +969,7 @@ class SourceModsContext : public Target {
 	void			appendAttrib( Attrib attr, uint8_t dims, const float *srcData, size_t count );
 	void			clearAttrib( Attrib attr );
 	//! Appends index data to existing index data. \a primitive must match existing data.
-	void			appendIndices( Primitive primitive, const uint32_t *source, size_t numIndices );
+	void			appendIndices( Primitive primitive, const uint32_t *source, size_t numIndices, uint8_t requiredBytes );
 	void			clearIndices();
 
 	size_t			getNumVertices() const;
@@ -983,6 +993,7 @@ class SourceModsContext : public Target {
 	
 	std::unique_ptr<uint32_t[]>				mIndices;
 	size_t									mNumIndices;
+	uint8_t									mIndicesRequiredBytes;
 	geom::Primitive							mPrimitive;
 };
 

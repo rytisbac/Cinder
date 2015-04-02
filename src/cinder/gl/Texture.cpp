@@ -20,7 +20,7 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "cinder/gl/gl.h" // has to be first
+#include "cinder/gl/platform.h" // has to be first
 #include "cinder/gl/Fbo.h"
 #include "cinder/gl/Pbo.h"
 #include "cinder/gl/Texture.h"
@@ -28,6 +28,7 @@
 #include "cinder/gl/TextureFormatParsers.h"
 #include "cinder/gl/Environment.h"
 #include "cinder/gl/ConstantStrings.h"
+#include "cinder/gl/scoped.h"
 #include "cinder/ip/Flip.h"
 #include "cinder/Log.h"
 #include <stdio.h>
@@ -1170,14 +1171,19 @@ Rectf Texture2d::getAreaTexCoords( const Area &area ) const
 		result.x2 = area.x2 / (float)getCleanWidth();
 		result.y1 = area.y1 / (float)getCleanHeight();
 		result.y2 = area.y2 / (float)getCleanHeight();
+		
+		if( ! mTopDown ) {
+			result.y1 = 1.0f - result.y1;
+			result.y2 = 1.0f - result.y2;
+		}
 	}
 	else {
 		result = Rectf( area );
-	}
-	
-	if( ! mTopDown ) {
-		result.y1 = 1.0f - result.y1;
-		result.y2 = 1.0f - result.y2;
+
+		if( ! mTopDown ) {
+			result.y1 = getCleanHeight() - result.y1;
+			result.y2 = getCleanHeight() - result.y2;
+		}
 	}
 	
 	return result;

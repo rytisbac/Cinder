@@ -171,7 +171,7 @@ void VboMeshGeomTarget::copyBuffers()
 {
 	// iterate all the buffers in mBufferData and upload them to the corresponding VBO in the VboMesh
 	for( auto bufferDataIt = mBufferData.begin(); bufferDataIt != mBufferData.end(); ++bufferDataIt ) {
-		auto vertexArrayIt = mVboMesh->mVertexArrayVbos.begin() + std::distance( bufferDataIt, mBufferData.begin() );
+		auto vertexArrayIt = mVboMesh->mVertexArrayVbos.begin() + std::distance( mBufferData.begin(), bufferDataIt );
 		vertexArrayIt->second->copyData( bufferDataIt->mDataSize, bufferDataIt->mData.get() );
 	}
 }
@@ -256,6 +256,15 @@ VboMeshRef VboMesh::create( const geom::Source &source, const geom::AttribSet &r
 		layout.attrib( attrib, 0 ); // 0 dim implies querying the Source for its dimension
 	
 	return VboMeshRef( new VboMesh( source, { { layout, nullptr } }, nullptr ) );
+}
+
+VboMeshRef VboMesh::create( const geom::Source &source, const std::vector<VboMesh::Layout> &vertexArrayLayouts )
+{
+	std::vector<std::pair<VboMesh::Layout,VboRef>> layoutVbos;
+	for( const auto &vertexArrayLayout : vertexArrayLayouts )
+		layoutVbos.push_back( std::make_pair( vertexArrayLayout, (VboRef)nullptr ) );
+
+	return VboMeshRef( new VboMesh( source, layoutVbos, nullptr ) );
 }
 
 VboMeshRef VboMesh::create( const geom::Source &source, const std::vector<std::pair<VboMesh::Layout,VboRef>> &vertexArrayLayouts, const VboRef &indexVbo )
@@ -361,6 +370,11 @@ void VboMesh::allocateIndexVbo()
 
 void VboMesh::buildVao( const GlslProgRef &shader, const AttribGlslMap &attributeMapping )
 {
+	buildVao( shader.get(), attributeMapping );
+}
+
+void VboMesh::buildVao( const GlslProg* shader, const AttribGlslMap &attributeMapping )
+{
 	auto ctx = gl::context();
 	
 	// iterate all the vertex array VBOs; map<geom::BufferLayout,VboRef>
@@ -394,12 +408,16 @@ void VboMesh::buildVao( const GlslProgRef &shader, const AttribGlslMap &attribut
 		mIndices->bind();
 }
 
-void VboMesh::drawImpl()
+void VboMesh::drawImpl( GLint first, GLsizei count )
 {
-	if( mNumIndices )
-		glDrawElements( mGlPrimitive, mNumIndices, mIndexType, (GLvoid*)( 0 ) );
+	if( mNumIndices ) {
+		size_t firstByteOffset = first;
+		if( mIndexType == GL_UNSIGNED_INT ) firstByteOffset *= 4;
+		else if( mIndexType == GL_UNSIGNED_SHORT ) firstByteOffset *= 2;
+		glDrawElements( mGlPrimitive, ( count < 0 ) ? ( mNumIndices - first ) : count, mIndexType, (GLvoid*)( firstByteOffset ) );
+	}
 	else
-		glDrawArrays( mGlPrimitive, 0, mNumVertices );
+		glDrawArrays( mGlPrimitive, first, ( count < 0 ) ? ( mNumVertices - first ) : count );
 }
 
 void VboMesh::drawInstancedImpl( GLsizei instanceCount )
