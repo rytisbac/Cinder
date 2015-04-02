@@ -1,0 +1,9 @@
+env = Environment()
+
+env['APP_TARGET'] = 'DeferredShadingApp'
+env['APP_SOURCES'] = ['DeferredShadingApp.cpp', 'Light.cpp']
+env['ASSETS'] = Split('debug_frag.glsl gbuffer_frag.glsl lbuffer_frag.glsl ' + \
+		'random.png shadow_map_vert.glsl fxaa_frag.glsl gbuffer_vert.glsl ' + \
+		'passThrough_vert.glsl shadow_map_frag.glsl')
+
+SConscript('../../../../scons/SConscript', exports = 'env')

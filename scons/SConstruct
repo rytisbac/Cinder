@@ -76,8 +76,8 @@ CINDERSRC_JSON = ['jsoncpp.cpp']
 CINDERSRC_JSON = ['../src/jsoncpp/' + s for s in CINDERSRC_JSON]
 
 if platform == 'darwin':
-	CINDERSRC_QTIME = Split('AvfUtils.mm MovieWriter.cpp QuickTimeGlImplAvf.cpp ' + \
-		'QuickTimeImplAvf.mm QuickTimeUtils.cpp')
+	CINDERSRC_QTIME = Split('AvfUtils.mm AvfWriter.mm MovieWriter.cpp ' + \
+		'QuickTimeGlImplAvf.cpp QuickTimeImplAvf.mm QuickTimeUtils.cpp')
 	CINDERSRC_QTIME = ['../src/cinder/qtime/' + s for s in CINDERSRC_QTIME]
 
 CINDERSRC_SVG = Split('Svg.cpp')
@@ -85,11 +85,11 @@ CINDERSRC_SVG = ['../src/cinder/svg/' + s for s in CINDERSRC_SVG]
 
 CINDERSRC_GL = Split('Batch.cpp BufferObj.cpp BufferTexture.cpp ConstantStrings.cpp ' + \
 	'Context.cpp Environment.cpp EnvironmentCore.cpp EnvironmentEs.cpp ' + \
-	'Fbo.cpp GlslProg.cpp Pbo.cpp Query.cpp Shader.cpp Sync.cpp Texture.cpp ' + \
+	'Fbo.cpp GlslProg.cpp Pbo.cpp Query.cpp Shader.cpp ShaderPreprocessor.cpp Sync.cpp Texture.cpp ' + \
 	'TextureFont.cpp TextureFormatParsers.cpp TransformFeedbackObj.cpp ' + \
 	'TransformFeedbackObjImplHardware.cpp TransformFeedbackObjImplSoftware.cpp ' + \
 	'Ubo.cpp Vao.cpp VaoImplCore.cpp VaoImplEs.cpp VaoImplSoftware.cpp Vbo.cpp ' + \
-	'VboMesh.cpp gl.cpp')
+	'VboMesh.cpp draw.cpp scoped.cpp wrapper.cpp')
 CINDERSRC_GL = ['../src/cinder/gl/' + s for s in CINDERSRC_GL]
 
 CINDERSRC_APP = Split('AppBase.cpp KeyEvent.cpp ' + \
