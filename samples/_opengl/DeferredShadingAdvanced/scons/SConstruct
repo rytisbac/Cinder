@@ -2,10 +2,10 @@ env = Environment()
 
 env['APP_TARGET'] = 'DeferredShadingAdvancedApp'
 env['APP_SOURCES'] = ['DeferredShadingAdvancedApp.cpp', 'Light.cpp', 'Material.cpp']
-env['ASSETS'] = Split('blend_frag.glsl blur_frag.glsl color_frag.glsl composite_frag.glsl ' + \
-					'debug_frag.glsl dof_frag.glsl emissive_frag.glsl fxaa_frag.glsl ' + \
-					'gbuffer_frag.glsl gbuffer_vert.glsl lbuffer_frag.glsl ' + \
-					'passThrough_vert.glsl random.png shadow_map_frag.glsl ' + \
-					'shadow_map_vert.glsl ssao_frag.glsl ssao_vert.glsl')
+env['ASSETS'] = Split('blur.frag color.frag composite.frag debug.frag ' + \
+	'dof.frag emissive.frag fxaa.frag gbuffer.frag ' + \
+	'gbuffer.vert lbuffer.frag material.glsl pass_through.vert ' + \
+	'random.png shadow_map.frag shadow_map.vert ssao.frag ' + \
+	'ssao.vert vertex_in.glsl vertex_out.glsl')
 
 SConscript('../../../../scons/SConscript', exports = 'env')
