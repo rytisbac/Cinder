@@ -30,7 +30,7 @@
 typedef std::shared_ptr<class CullableObject> CullableObjectRef;
 
 class CullableObject {
-public:
+  public:
 	CullableObject( const ci::gl::BatchRef &batch );
 	~CullableObject();
 	
@@ -44,16 +44,21 @@ public:
 	
 	//! For sorting purposes
 	const ci::vec3& getPosition() const { return mPosition; }
+	//!
+	const ci::vec3& getRotation() const { return mRotation; }
+	//!
+	float getScale() const { return mScale; }
 	
-	void setTransform( const ci::vec3 &position, const ci::vec3 &rotation, const ci::vec3 &scale );
-protected:
+	void setTransform( const ci::vec3 &position, const ci::vec3 &rotation, float scale );
+	
+  protected:
 	//! keep track of culling state
 	bool			mIsCulled;
 
 	//! keep track of position, rotation and scale
 	ci::vec3		mPosition;
 	ci::vec3		mRotation;
-	ci::vec3		mScale;
+	float			mScale;
 
 	//! This is the combined transformation that is used to transform the model matrix
 	ci::mat4			mTransform;

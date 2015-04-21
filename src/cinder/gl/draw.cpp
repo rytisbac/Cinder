@@ -331,7 +331,7 @@ void draw( const PolyLine2 &polyLine )
 
 	ctx->getDefaultVao()->replacementBindEnd();
 	ctx->setDefaultShaderVars();
-	ctx->drawArrays( GL_LINE_STRIP, 0, (GLsizei)points.size() );
+	ctx->drawArrays( ( polyLine.isClosed() ) ? GL_LINE_LOOP : GL_LINE_STRIP, 0, (GLsizei)points.size() );
 	ctx->popVao();
 }
 
@@ -359,7 +359,7 @@ void draw( const PolyLine3 &polyLine )
 
 	ctx->getDefaultVao()->replacementBindEnd();
 	ctx->setDefaultShaderVars();
-	ctx->drawArrays( GL_LINE_STRIP, 0, (GLsizei)points.size() );
+	ctx->drawArrays( ( polyLine.isClosed() ) ? GL_LINE_LOOP : GL_LINE_STRIP, 0, (GLsizei)points.size() );
 	ctx->popVao();
 }
 
@@ -1024,7 +1024,7 @@ void drawSolidTriangle( const vec2 pts[3], const vec2 texCoord[3] )
 
 void drawSphere( const vec3 &center, float radius, int subdivisions )
 {
-	draw( geom::Sphere().center( center ).radius( radius ).subdivisions( subdivisions ).colors() );
+	draw( geom::Sphere().center( center ).radius( radius ).subdivisions( subdivisions ) );
 }
 
 void drawBillboard( const vec3 &pos, const vec2 &scale, float rotationRadians, const vec3 &bbRight, const vec3 &bbUp, const Rectf &texCoords )

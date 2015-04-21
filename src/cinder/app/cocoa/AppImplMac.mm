@@ -582,7 +582,7 @@ using namespace cinder::app;
 
 	NSRect frame = [mWin frame];
 	NSRect content = [mWin contentRectForFrameRect:frame];
-	mPos = ivec2( content.origin.x, [[[NSScreen screens] objectAtIndex:0] frame].size.height - frame.origin.y - content.size.height );
+	mPos = ivec2( content.origin.x, mWin.screen.frame.size.height - frame.origin.y - content.size.height );
 	[mAppImpl setActiveWindow:self];
 
 	// This appears to be NULL in some scenarios
@@ -628,9 +628,19 @@ using namespace cinder::app;
 	NSSize nsSize = [mCinderView frame].size;
 	mSize = cinder::ivec2( nsSize.width, nsSize.height );
 
+	NSRect frame = [mWin frame];
+	NSRect content = [mWin contentRectForFrameRect:frame];
+	
+	ivec2 prevPos = mPos;	
+	mPos = ivec2( content.origin.x, mWin.screen.frame.size.height - frame.origin.y - content.size.height );
+
 	if( ! ((PlatformCocoa*)Platform::get())->isInsideModalLoop() ) {
 		[mAppImpl setActiveWindow:self];
 		mWindowRef->emitResize();
+		
+		// If the resize happened from top left, also signal that the Window moved.
+		if( prevPos != mPos )
+			mWindowRef->emitMove();
 	}
 }
 
@@ -818,8 +828,10 @@ using namespace cinder::app;
 															highDensityDisplay:appImpl->mApp->isHighDensityDisplayEnabled()
 															enableMultiTouch:appImpl->mApp->isMultiTouchEnabled()];
 
-	[winImpl->mWin setDelegate:self];	
-	[winImpl->mWin setContentView:winImpl->mCinderView];
+	[winImpl->mWin setDelegate:self];
+	// add CinderView as subview of window's content view to avoid NSWindow warning: https://github.com/cinder/Cinder/issues/584
+	[winImpl->mWin.contentView addSubview:winImpl->mCinderView];
+	winImpl->mCinderView.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
 
 	[winImpl->mWin makeKeyAndOrderFront:nil];
 	// after showing the window, the size may have changed (see NSWindow::constrainFrameRect) so we need to update our internal variable
