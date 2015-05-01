@@ -3,35 +3,35 @@
 #include "cinder/ObjLoader.h"
 #include "cinder/app/App.h"
 #include "cinder/app/RendererGl.h"
-#include "cinder/Arcball.h"
-#include "cinder/MayaCamUI.h"
-#include "cinder/Sphere.h"
 #include "cinder/gl/gl.h"
+#include "cinder/Arcball.h"
+#include "cinder/CameraUi.h"
+#include "cinder/Sphere.h"
 #include "cinder/ImageIo.h"
 #include "cinder/ip/Checkerboard.h"
+
+#include "Resources.h"
 
 using namespace ci;
 using namespace ci::app;
 
-#include <list>
-using std::list;
-
 class ObjLoaderApp : public App {
   public:
 	void	setup() override;
-	void	resize() override;
 
 	void	mouseDown( MouseEvent event ) override;
 	void	mouseDrag( MouseEvent event ) override;
 	void	keyDown( KeyEvent event ) override;
 
-	void	loadObjFile( const fs::path &filePath );
+	void	loadObj( const DataSourceRef &dataSource );
 	void	frameCurrentObject();
 	void	draw() override;
 	
 	Arcball			mArcball;
-	MayaCamUI		mMayaCam;
+	CameraUi		mCamUi;
+	CameraPersp		mCam;
 	TriMeshRef		mMesh;
+	Sphere			mBoundingSphere;
 	gl::BatchRef	mBatch;
 	gl::GlslProgRef	mGlsl;
 	gl::TextureRef	mCheckerTexture;
@@ -46,53 +46,50 @@ void ObjLoaderApp::setup()
 #endif
 	mGlsl->uniform( "uTex0", 0 );
 
-	CameraPersp initialCam;
-	initialCam.setPerspective( 45.0f, getWindowAspectRatio(), 0.1, 10000 );
-	mMayaCam.setCurrentCam( initialCam );
+	mCam.setPerspective( 45.0f, getWindowAspectRatio(), 0.1, 10000 );
+	mCamUi = CameraUi( &mCam );
 
 	mCheckerTexture = gl::Texture::create( ip::checkerboard( 512, 512, 32 ) );
 	mCheckerTexture->bind( 0 );
 
-	loadObjFile( getAssetPath( "8lbs.obj" ) );
-}
+	loadObj( loadResource( RES_8LBS_OBJ ) );
 
-void ObjLoaderApp::resize()
-{
-	mArcball.setWindowSize( getWindowSize() );
-	mArcball.setCenter( vec2( getWindowWidth() / 2.0f, getWindowHeight() / 2.0f ) );
-	mArcball.setRadius( 150 );
+	mArcball = Arcball( &mCam, mBoundingSphere );
 }
 
 void ObjLoaderApp::mouseDown( MouseEvent event )
 {
-	if( event.isAltDown() )
-		mMayaCam.mouseDown( event.getPos() );
+	if( event.isMetaDown() )
+		mCamUi.mouseDown( event );
 	else
-		mArcball.mouseDown( event.getPos() );
+		mArcball.mouseDown( event );
 }
 
 void ObjLoaderApp::mouseDrag( MouseEvent event )
 {
-	if( event.isAltDown() )
-		mMayaCam.mouseDrag( event.getPos(), event.isLeftDown(), event.isMiddleDown(), event.isRightDown() );
+	if( event.isMetaDown() )
+		mCamUi.mouseDrag( event );
 	else
-		mArcball.mouseDrag( event.getPos() );
+		mArcball.mouseDrag( event );
 }
 
-void ObjLoaderApp::loadObjFile( const fs::path &filePath )
+void ObjLoaderApp::loadObj( const DataSourceRef &dataSource )
 {
-	ObjLoader loader( (DataSourceRef)loadFile( filePath ) );
+	ObjLoader loader( dataSource );
 	mMesh = TriMesh::create( loader );
+
 	if( ! loader.getAvailableAttribs().count( geom::NORMAL ) )
 		mMesh->recalculateNormals();
+
 	mBatch = gl::Batch::create( *mMesh, mGlsl );
+	
+	mBoundingSphere = Sphere::calculateBoundingSphere( mMesh->getPositions<3>(), mMesh->getNumVertices() );
+	mArcball.setSphere( mBoundingSphere );
 }
 
 void ObjLoaderApp::frameCurrentObject()
 {
-	Sphere boundingSphere = Sphere::calculateBoundingSphere( mMesh->getPositions<3>(), mMesh->getNumVertices() );
-	
-	mMayaCam.setCurrentCam( mMayaCam.getCamera().calcFraming( boundingSphere ) );
+	mCam = mCam.calcFraming( mBoundingSphere );
 }
 
 void ObjLoaderApp::keyDown( KeyEvent event )
@@ -100,7 +97,7 @@ void ObjLoaderApp::keyDown( KeyEvent event )
 	if( event.getChar() == 'o' ) {
 		fs::path path = getOpenFilePath();
 		if( ! path.empty() ) {
-			loadObjFile( path );
+			loadObj( loadFile( path ) );
 		}
 	}
 	else if( event.getChar() == 'f' ) {
@@ -115,7 +112,7 @@ void ObjLoaderApp::draw()
 	
 	gl::clear( Color( 0.0f, 0.1f, 0.2f ) );
 
-	gl::setMatrices( mMayaCam.getCamera() );
+	gl::setMatrices( mCam );
 
 	gl::pushMatrices();
 		gl::rotate( mArcball.getQuat() );
@@ -124,4 +121,6 @@ void ObjLoaderApp::draw()
 }
 
 
-CINDER_APP( ObjLoaderApp, RendererGl )
+CINDER_APP( ObjLoaderApp, RendererGl, [] ( App::Settings *settings ) {
+	settings->setMultiTouchEnabled( false );
+} )

@@ -160,6 +160,10 @@ class TextureBase {
 		void	setBaseMipmapLevel( GLuint level ) { mBaseMipmapLevel = level; }
 		//! Sets the max mipmap level. Default (expressed as \c -1) is derived from the size of the texture. Ignored on ES 2.
 		void	setMaxMipmapLevel( GLint level ) { mMaxMipmapLevel = level; }
+		//! Returns the index of the lowest defined mipmap level.
+		GLuint	getBaseMipmapLevel() const { return mBaseMipmapLevel; }
+		//! Returns the max mipmap level.
+		GLuint	getMaxMipmapLevel() const { return mMaxMipmapLevel; }
 		
 		//! Sets whether the storage for the cannot be changed in the future (making glTexImage*D() calls illegal). More efficient when possible. Default is \c false.
 		void	setImmutableStorage( bool immutable = true ) { mImmutableStorage = immutable; }
@@ -179,7 +183,12 @@ class TextureBase {
 		// Specifies the texture comparison mode for currently bound depth textures.
 		void	setCompareMode( GLenum compareMode ) { mCompareMode = compareMode; }
 		// Specifies the comparison operator used when \c GL_TEXTURE_COMPARE_MODE is set to \c GL_COMPARE_R_TO_TEXTURE
-		void	setCompareFunc( GLenum compareFunc ) { mCompareFunc = compareFunc; }		
+		void	setCompareFunc( GLenum compareFunc ) { mCompareFunc = compareFunc; }
+		//! Returns the texture comparison mode for currently bound depth texture.
+		GLenum	getCompareMode() const { return mCompareMode; }
+		//! Returns the comparison operator used when \c GL_TEXTURE_COMPARE_MODE is set to \c GL_COMPARE_R_TO_TEXTURE
+		GLenum	getCompareFunc() const { return mCompareFunc; }
+
 		//! Sets the wrapping behavior when a texture coordinate falls outside the range of [0,1]. Possible values are \c GL_REPEAT, \c GL_CLAMP_TO_EDGE, etc. Default is \c GL_CLAMP_TO_EDGE.
 		void	setWrap( GLenum wrapS, GLenum wrapT ) { setWrapS( wrapS ); setWrapT( wrapT ); }
 #if ! defined( CINDER_GL_ES )
@@ -269,7 +278,6 @@ class TextureBase {
 		bool				mImmutableStorage;
 		GLfloat				mMaxAnisotropy;
 		GLint				mInternalFormat, mDataType;
-		GLint				mDataFormat;
 		bool				mSwizzleSpecified;
 		std::array<GLint,4>	mSwizzleMask;
 		bool				mBorderSpecified;
@@ -635,9 +643,11 @@ class Texture3d : public TextureBase {
 	};
 
 	static Texture3dRef create( GLint width, GLint height, GLint depth, Format format = Format() );
-	static Texture3dRef create( GLint width, GLint height, GLint depth, GLenum dataFormat, const uint8_t *data, Format format = Format() );	
+	static Texture3dRef create( GLint width, GLint height, GLint depth, GLenum dataFormat, GLenum dataType, const void *data, Format format = Format() );
   
 	void	update( const Surface &surface, int depth, int mipLevel = 0 );
+
+	void	update( GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum dataFormat, GLenum dataType, void *data, int mipLevel );
 	
 	//! Returns the width of the texture in pixels
 	GLint			getWidth() const override { return mWidth; }
@@ -652,7 +662,7 @@ class Texture3d : public TextureBase {
 
   protected:
   	Texture3d( GLint width, GLint height, GLint depth, Format format );
-	Texture3d( GLint width, GLint height, GLint depth, GLenum dataFormat, const uint8_t *data, Format format );
+	Texture3d( GLint width, GLint height, GLint depth, GLenum dataFormat, GLenum dataType, const void *data, Format format );
 
 	virtual void	printDims( std::ostream &os ) const override;
 
