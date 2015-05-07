@@ -83,7 +83,7 @@ if platform == 'darwin':
 CINDERSRC_SVG = Split('Svg.cpp')
 CINDERSRC_SVG = ['../src/cinder/svg/' + s for s in CINDERSRC_SVG]
 
-CINDERSRC_GL = Split('Batch.cpp BufferObj.cpp BufferTexture.cpp ConstantStrings.cpp ' + \
+CINDERSRC_GL = Split('Batch.cpp BufferObj.cpp BufferTexture.cpp ConstantConversions.cpp ' + \
 	'Context.cpp Environment.cpp EnvironmentCore.cpp EnvironmentEs.cpp ' + \
 	'Fbo.cpp GlslProg.cpp Pbo.cpp Query.cpp Shader.cpp ShaderPreprocessor.cpp Sync.cpp Texture.cpp ' + \
 	'TextureFont.cpp TextureFormatParsers.cpp TransformFeedbackObj.cpp ' + \
