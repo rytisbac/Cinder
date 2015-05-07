@@ -57,7 +57,7 @@ typedef std::shared_ptr<class Source>	SourceRef;
 enum Attrib { POSITION, COLOR, TEX_COORD_0, TEX_COORD_1, TEX_COORD_2, TEX_COORD_3,
 	NORMAL, TANGENT, BITANGENT, BONE_INDEX, BONE_WEIGHT, 
 	CUSTOM_0, CUSTOM_1, CUSTOM_2, CUSTOM_3, CUSTOM_4, CUSTOM_5, CUSTOM_6, CUSTOM_7, CUSTOM_8, CUSTOM_9,
-	NUM_ATTRIBS };
+	NUM_ATTRIBS, USER_DEFINED = NUM_ATTRIBS };
 typedef	std::set<Attrib>	AttribSet;
 extern std::string			sAttribNames[(int)Attrib::NUM_ATTRIBS];
 
@@ -280,10 +280,11 @@ class Icosahedron : public Source {
 	void		loadInto( Target *target, const AttribSet &requestedAttribs ) const override;
 
   protected:
-	void		calculate( std::vector<vec3> *positions, std::vector<vec3> *normals, std::vector<vec3> *colors, std::vector<uint32_t> *indices ) const;
+	void		calculate( std::vector<vec3> *positions, std::vector<vec3> *normals, std::vector<vec3> *colors, std::vector<vec2> *texcoords, std::vector<uint32_t> *indices ) const;
 
 	bool			mHasColors;
 	static float	sPositions[12*3];
+	static float	sTexCoords[60*2];
 	static uint32_t	sIndices[60];
 	
 	friend class Icosphere;
