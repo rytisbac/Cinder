@@ -1,0 +1,7 @@
+env = Environment()
+
+env['APP_TARGET'] = 'VboMeshApp'
+env['APP_SOURCES'] = ['VboMeshApp.cpp']
+env['RESOURCES'] = [File('../../../data/cinder_logo.png').abspath]
+
+SConscript('../../../../scons/SConscript', exports = 'env')
