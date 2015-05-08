@@ -14,7 +14,7 @@ env = Environment(ENV = {'PATH' : os.environ['PATH']})
 platform = env['PLATFORM']
 
 CINDERSRC = Split('Area.cpp AxisAlignedBox.cpp Base64.cpp BSpline.cpp ' + \
-		'BSplineFit.cpp BandedMatrix.cpp Buffer.cpp Camera.cpp ' + \
+		'BSplineFit.cpp BandedMatrix.cpp Buffer.cpp Camera.cpp CameraUi.cpp ' + \
 		'Channel.cpp CinderAssert.cpp CinderMath.cpp Clipboard.cpp ConvexHull.cpp Color.cpp ' + \
 		'DataSource.cpp DataTarget.cpp Exception.cpp Frustum.cpp ' + \
 		'GeomIo.cpp ImageIo.cpp ImageSourceFileRadiance.cpp Json.cpp ' + \
