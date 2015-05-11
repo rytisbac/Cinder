@@ -158,7 +158,6 @@ elif platform == 'win32':
 	CINDER_SOURCES += CINDERSRC_MSW + VIDEOINPUTSRC
 
 INCLUDES = ['../include',
-		'../boost',
 		'../include/rapidxml',
 		'../include/cinder/app',
 		'../include/jsoncpp',
