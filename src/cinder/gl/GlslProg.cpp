@@ -235,9 +235,9 @@ void GlslProg::Format::setShaderSource( const DataSourceRef &dataSource, string 
 {
 	if( dataSource ) {
 		Buffer buffer( dataSource );
-		shaderSourceDest->resize( buffer.getDataSize() + 1 );
-		memcpy( (void *)shaderSourceDest->data(), buffer.getData(), buffer.getDataSize() );
-		(*shaderSourceDest)[buffer.getDataSize()] = 0;
+		shaderSourceDest->resize( buffer.getSize() + 1 );
+		memcpy( (void *)shaderSourceDest->data(), buffer.getData(), buffer.getSize() );
+		(*shaderSourceDest)[buffer.getSize()] = 0;
 		if( dataSource->isFilePath() )
 			*shaderPathDest = dataSource->getFilePath();
 		else
@@ -1269,6 +1269,7 @@ bool GlslProg::checkUniformType( GLenum uniformType ) const
 #if ! defined( CINDER_GL_ES )
 		case GL_SAMPLER_BUFFER_EXT: return std::is_same<T, int32_t>::value;
 		case GL_INT_SAMPLER_2D: return std::is_same<T, int32_t>::value;
+		case GL_SAMPLER_2D_RECT: return std::is_same<T, int32_t>::value;
 #endif
 #if ! defined( CINDER_GL_ES_2 )
 		case GL_UNSIGNED_INT_VEC2: return std::is_same<T,glm::uvec2>::value;
