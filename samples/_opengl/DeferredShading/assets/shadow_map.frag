@@ -1,4 +1,4 @@
-#version 330 core
+#include "precision.glsl"
 
 out vec4 oColor;
 

@@ -1,4 +1,4 @@
-#version 330 core
+#include "precision.glsl"
 
 uniform vec2		uPixel;
 uniform sampler2D	uSampler;
