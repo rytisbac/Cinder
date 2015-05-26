@@ -13,7 +13,7 @@ env = Environment(ENV = {'PATH' : os.environ['PATH']})
 
 platform = env['PLATFORM']
 
-CINDERSRC = Split('Area.cpp AxisAlignedBox.cpp Base64.cpp BSpline.cpp ' + \
+CINDERSRC = Split('Area.cpp Base64.cpp BSpline.cpp ' + \
 		'BSplineFit.cpp BandedMatrix.cpp Buffer.cpp Camera.cpp CameraUi.cpp ' + \
 		'Channel.cpp CinderAssert.cpp CinderMath.cpp Clipboard.cpp ConvexHull.cpp Color.cpp ' + \
 		'DataSource.cpp DataTarget.cpp Exception.cpp Frustum.cpp ' + \
@@ -237,14 +237,11 @@ if platform == 'darwin':
 		'-Wno-receiver-is-weak -Wno-non-virtual-dtor -Wno-overloaded-virtual ' + \
 		'-Wno-exit-time-destructors -Wno-selector -Wno-strict-selector-match ' + \
 		'-Wno-undeclared-selector -Wno-deprecated-implementations -Wno-arc-abi ' + \
-		'-Wno-c++11-extensions -Wprotocol -Winvalid-offsetof ' + \
-		'"-DIBOutlet=__attribute__((iboutlet))" ' + \
-		'"-DIBOutletCollection(ClassName)=__attribute__((iboutletcollection(ClassName)))" ' + \
-		'"-DIBAction=void)__attribute__((ibaction)" '
+		'-Wno-c++11-extensions -Wprotocol -Winvalid-offsetof '
 
 	env.Append(FRAMEWORKS = Split('AppKit ApplicationServices AudioUnit ' + \
 		'AudioToolbox AVFoundation Cocoa CoreAudio CoreData CoreGraphics ' + \
-		'CoreMedia CoreVideo Foundation OpenGl QTKit '))
+		'CoreMedia CoreVideo Foundation OpenGl QTKit IOKit IOSurface '))
 
 	# change compile flags for C and ObjC files
 	for i in range(len(CINDER_SOURCES)):
@@ -255,7 +252,8 @@ if platform == 'darwin':
 				'LoadOGL.cpp', 'LoadOGLCore.cpp', 'TwFonts.cpp',
 				'TwColors.cpp', 'TwOpenGL.cpp', 'TwOpenGLCore.cpp', 'TwBar.cpp', 'System.cpp',
 				'ImageSourceFileQuartz.cpp', 'MovieWriter.cpp', 'Clipboard.cpp', 'Window.cpp',
-				'Environment.cpp', 'PlatformCocoa.cpp', 'AppMac.cpp']):
+				'Environment.cpp', 'PlatformCocoa.cpp', 'AppMac.cpp',
+				'QuickTimeGlImplAvf.cpp']):
 				CINDER_SOURCES[i] = env.Object(CINDER_SOURCES[i], CCFLAGS = CCFLAGS_OBJC)
 		elif CINDER_SOURCES[i].endswith('.c'):
 				CINDER_SOURCES[i] = env.Object(CINDER_SOURCES[i], CCFLAGS = CFLAGS)
